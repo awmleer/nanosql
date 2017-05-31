@@ -1,4 +1,4 @@
-import io
+import io,math
 
 fileList={}
 
@@ -35,15 +35,18 @@ def write(filePath,blockPosition,content):
     print(f.tell())
     f.write(content)
 
-
+def blockCount(filePath):
+    f=getFile(filePath)
+    f.seek(0,io.SEEK_END)
+    return math.ceil(f.tell()/BLOCK_SIZE)
 
 
 
 if __name__=='__main__':
-    print(io.DEFAULT_BUFFER_SIZE)
-    f=openFile('test.txt')
-    f.seek(100,io.SEEK_END)
-    print(f.read())
+    print(blockCount('test.txt'))
+    # f=openFile('test.txt')
+    # f.seek(100,io.SEEK_END)
+    # print(f.read())
     # print(f.tell())
     # write('test.txt',0,b'awmleer')
     closeAllFiles()
