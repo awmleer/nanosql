@@ -2,4 +2,5 @@ import interpreter
 
 
 def execute(command):
-    interpreter.interpret(command)
+    queryData=interpreter.interpret(command)
+    return queryData

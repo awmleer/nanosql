@@ -1,6 +1,7 @@
 from clint.textui import colored
 from sys import stdin
 import core
+import logging
 
 def run():
     print('Welcome to NanoSQL')
@@ -16,6 +17,10 @@ def run():
         if command=='quit;':
             print('Bye')
             return
-        result=core.execute(command)
+        try:
+            result=core.execute(command)
+        except Exception as e:
+            logging.exception(e)
+            continue
         print(result)
         command=''

@@ -21,12 +21,12 @@
 
 ```json
 {
-  fields: ['field1', 'field2'] | None,//None represents for "*"
+  fields: ['field1', 'field2', '*'],
   from: 'table1',
   where:[
     {
       field: 'field1',
-      operator: '=' | '<>' | '<' | '>' | '<=' | '>=',
+      operand: '=' | '<>' | '<' | '>' | '<=' | '>=',
       value: 'string' | 42
     }
   ]
