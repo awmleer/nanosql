@@ -1,3 +1,8 @@
+"""
+困难：插入/删除数据之后如何对index进行更新
+
+"""
+
 def createIndex(indexName, tableName, columnName):
     """
     create index on `key` in `tableName`
@@ -16,16 +21,3 @@ def findValuesByIndex(indexName,condition):
     """
     result=[]
     return result
-def getIndexName(tableName,columnName):
-    """
-    give tableName&columnName, return indexName if there is index(else return '')
-    """
-    indexName=''
-    return indexName
-def getTableAndColumnName(indexName):
-    """
-    give indexName, return [tableName,columnName]
-    """
-    tableName=''
-    columnName=''
-    return [tableName,columnName]
