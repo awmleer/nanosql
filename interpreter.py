@@ -1,6 +1,5 @@
 
 
-
-def execute(command):
+def interpret(command):
     print(command)
     return 'done'
