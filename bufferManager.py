@@ -16,7 +16,6 @@ def closeAllFiles():
         fileList[key].close()
 
 
-
 def getFile(filePath):
     if filePath in fileList:
         return fileList[filePath]
@@ -24,16 +23,20 @@ def getFile(filePath):
         return openFile(filePath)
 
 
+
+
 def read(filePath,blockPosition):
     f=getFile(filePath)
     f.seek(blockPosition*BLOCK_SIZE,io.SEEK_SET)
-    f.read(BLOCK_SIZE)
+    return f.read(BLOCK_SIZE) #bytes
+
 
 def write(filePath,blockPosition,content):
     f=getFile(filePath)
     f.seek(blockPosition*BLOCK_SIZE,io.SEEK_SET)
     print(f.tell())
-    f.write(content)
+    f.write(content) #type of content is 'bytes'
+
 
 def blockCount(filePath):
     f=getFile(filePath)
@@ -42,6 +45,8 @@ def blockCount(filePath):
 
 
 
+
+# just for DEBUG
 if __name__=='__main__':
     print(blockCount('test.txt'))
     # f=openFile('test.txt')

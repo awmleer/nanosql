@@ -15,6 +15,7 @@ def run():
         if line[-1]!=';':
             continue
         if command=='quit;':
+            core.quit()
             print('Bye')
             return
         try:
