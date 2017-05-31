@@ -1,13 +1,9 @@
 # import io
 # import random
-from clint.textui import colored,puts
-from sys import stdin
+import shell
 
 if __name__ == '__main__':
-    print('Welcome to NanoSQL')
-    print(colored.green('> '),end='',flush=True)
-    input=stdin.readline()
-    print(input)
+    shell.run()
 
     # print(colored.red('red text'))
 
