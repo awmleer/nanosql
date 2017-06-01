@@ -1,10 +1,11 @@
-import io,math
+import io,math,random
 
 fileList={}
 bufferList={}
 
 BLOCK_SIZE=4096
 MAX_BUFFER_AMOUNT=64
+
 
 def openFile(filePath):
     f=open(filePath,'ab+')
@@ -24,6 +25,11 @@ def getFile(filePath):
         return openFile(filePath)
 
 
+def freeBuffer(filePath):
+    keys=list(bufferList[filePath].keys())
+    if len(keys)==0: return
+    i=random.randint(0,len(keys))
+    del bufferList[filePath][keys[i]]
 
 
 def read(filePath,blockPosition,cache=False):
@@ -36,6 +42,8 @@ def read(filePath,blockPosition,cache=False):
     if cache:
         if filePath not in bufferList:
             bufferList[filePath]={}
+        if (blockPosition not in bufferList[filePath]) and (len(bufferList[filePath])>=MAX_BUFFER_AMOUNT): #need to add a bufferBlock but the the amount reaches the MAX value
+            freeBuffer(filePath)
         bufferList[filePath][blockPosition]={
             'consistent':True,
             'data':data
@@ -47,6 +55,8 @@ def write(filePath,blockPosition,data,cache=False):
     if cache:
         if filePath not in bufferList:
             bufferList[filePath]={}
+        if (blockPosition not in bufferList[filePath]) and (len(bufferList[filePath])>=MAX_BUFFER_AMOUNT): #need to add a bufferBlock but the the amount reaches the MAX value
+            freeBuffer(filePath)
         bufferList[filePath][blockPosition]={
             'consistent':False,
             'data':data
@@ -57,7 +67,7 @@ def write(filePath,blockPosition,data,cache=False):
         f = getFile(filePath)
         f.seek(blockPosition * BLOCK_SIZE, io.SEEK_SET)
         print(f.tell())
-        f.write(data)  # type of content is 'bytes'
+        f.write(data)  # type of data is 'bytes'
 
 
 
