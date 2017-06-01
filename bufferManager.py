@@ -1,6 +1,7 @@
 import io,math
 
 fileList={}
+bufferList={}
 
 BLOCK_SIZE=4096
 
@@ -25,17 +26,37 @@ def getFile(filePath):
 
 
 
-def read(filePath,blockPosition):
+def read(filePath,blockPosition,cache=False):
+    if cache:
+        if (filePath in bufferList) and (blockPosition in bufferList[filePath]):
+            return bufferList[filePath][blockPosition]
     f=getFile(filePath)
     f.seek(blockPosition*BLOCK_SIZE,io.SEEK_SET)
+    data=f.read(BLOCK_SIZE)
+    if cache:
+        if filePath not in bufferList:
+            bufferList[filePath]={}
+        bufferList[filePath][blockPosition]={
+            'consistent':True,
+            'data':data
+        }
     return f.read(BLOCK_SIZE) #bytes
 
 
-def write(filePath,blockPosition,content):
-    f=getFile(filePath)
-    f.seek(blockPosition*BLOCK_SIZE,io.SEEK_SET)
-    print(f.tell())
-    f.write(content) #type of content is 'bytes'
+def write(filePath,blockPosition,data,cache=False):
+    if cache:
+        if filePath not in bufferList:
+            bufferList[filePath]={}
+        bufferList[filePath][blockPosition]={
+            'consistent':False,
+            'data':data
+        }
+    else:
+        f = getFile(filePath)
+        f.seek(blockPosition * BLOCK_SIZE, io.SEEK_SET)
+        print(f.tell())
+        f.write(data)  # type of content is 'bytes'
+
 
 
 def blockCount(filePath):
@@ -44,6 +65,21 @@ def blockCount(filePath):
     return math.ceil(f.tell()/BLOCK_SIZE)
 
 
+def save(filePath):
+    if filePath not in bufferList:
+        return
+    f=getFile(filePath)
+    for position in bufferList[filePath]:
+        blockBuffer=bufferList[filePath][position]
+        if blockBuffer['consistent']:
+            continue
+        f.seek(position,io.SEEK_SET)
+        f.write(blockBuffer['data'])
+
+
+def saveAll():
+    for filePath in bufferList:
+        save(filePath)
 
 
 # just for DEBUG
