@@ -4,7 +4,7 @@ fileList={}
 bufferList={}
 
 BLOCK_SIZE=4096
-
+MAX_BUFFER_AMOUNT=64
 
 def openFile(filePath):
     f=open(filePath,'ab+')
@@ -40,7 +40,7 @@ def read(filePath,blockPosition,cache=False):
             'consistent':True,
             'data':data
         }
-    return f.read(BLOCK_SIZE) #bytes
+    return data #bytes
 
 
 def write(filePath,blockPosition,data,cache=False):
@@ -52,6 +52,8 @@ def write(filePath,blockPosition,data,cache=False):
             'data':data
         }
     else:
+        if (filePath in bufferList) and (blockPosition in bufferList[filePath]):
+            del bufferList[filePath][blockPosition]
         f = getFile(filePath)
         f.seek(blockPosition * BLOCK_SIZE, io.SEEK_SET)
         print(f.tell())
