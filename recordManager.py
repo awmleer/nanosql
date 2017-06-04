@@ -1,8 +1,13 @@
+import bufferManager
 def createTable(tableName):
+    #find whether exist????
+    write(getTableFileName(tableName),0,b'')
     return True
 def dropTable(tableName):
+    #
     return True
 def insertValues(tableName, valueList):
+
     return True
 def deleteValues(tableName, primaryKeyList):
     """
@@ -20,3 +25,5 @@ def findValues(tableName, conditionList):
     """
     result=[]
     return result
+def getTableFileName(tableName):
+    return ''.join([tableName,'.txt'])
