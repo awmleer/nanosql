@@ -6,7 +6,7 @@
 
 ```json
 {
-  operation: 'select' | 'insert' | 'delete' | ...
+  operation: 'select' | 'insert' | 'delete' | 'createTable' ...
   data:<Operation Data>
 }
 ```
@@ -15,9 +15,28 @@
 
 
 
+### Create Table - Data Format
+
+```json
+{
+  tableName,
+  fields:[{
+      name,
+      type: 'char' | 'int' | 'float',
+      typeParam:
+        { maxLength: <int> } //for char type
+        None, //for other types
+      unique: <boolean>
+  }],
+  primaryKey
+}
+```
 
 
-### Select Operation Data Format
+
+
+
+### Select - Data Format
 
 ```json
 {
@@ -35,7 +54,7 @@
 
 
 
-### Insert Operation Data Format
+### Insert - Data Format
 
 ```json
 {
@@ -48,7 +67,7 @@
 
 
 
-### Table Operation Data Format
+### Table - Data Format
 
 
 
