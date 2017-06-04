@@ -92,19 +92,7 @@ def parseCreateTableStatement(command):
 
 
 
-def parseSelectStatement(command):
-    # command=removeFrontSpaces(command)
-    strings=re.split(' from ',command)
-    fieldString=strings[0]
-    strings=re.split(' where ',strings[1])
-    fromString=strings[0]
-    whereString=strings[1]
-
-    rawFields=re.split(',',fieldString)
-    fields=[]
-    for rawField in rawFields:
-        fields.append(removeEndsSpaces(rawField))
-
+def parseWheres(whereString):
     rawWheres=re.split(' and ',whereString)
     wheres=[]
     for rawWhere in rawWheres:
@@ -129,9 +117,24 @@ def parseSelectStatement(command):
             'operatorA':removeEndsSpaces(operators[0]),
             'operatorB':removeEndsSpaces(operators[1])
         })
+    return wheres
+
+
+def parseSelectStatement(command):
+    # command=removeFrontSpaces(command)
+    strings=re.split(' from ',command)
+    fieldString=strings[0]
+    strings=re.split(' where ',strings[1])
+    fromString=strings[0]
+    whereString=strings[1]
+
+    rawFields=re.split(',',fieldString)
+    fields=[]
+    for rawField in rawFields:
+        fields.append(removeEndsSpaces(rawField))
 
     return {
         'fields':fields,
         'from':removeEndsSpaces(fromString),
-        'where':wheres
+        'where':parseWheres(whereString)
     }
