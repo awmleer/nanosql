@@ -1,4 +1,4 @@
-import io,math,random
+import io,math,random,os
 
 fileList={}
 bufferList={}
@@ -68,6 +68,12 @@ def write(filePath,blockPosition,data,cache=False):
         f.seek(blockPosition * BLOCK_SIZE, io.SEEK_SET)
         print(f.tell())
         f.write(data)  # type of data is 'bytes'
+
+
+def delete(filePath):
+    save(filePath)
+    del bufferList[filePath]
+    os.remove(filePath)
 
 
 
