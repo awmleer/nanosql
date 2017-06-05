@@ -34,6 +34,16 @@
 
 
 
+### Drop Tabel - Data Format
+
+```json
+{
+  tableName
+}
+```
+
+
+
 
 
 ### Select - Data Format
@@ -48,7 +58,7 @@
       operand: '=' | '<>' | '<' | '>' | '<=' | '>=',
       value: 'string' | 42
     }
-  ]
+  ] or None
 }
 ```
 
@@ -58,8 +68,8 @@
 
 ```json
 {
-  table: 'table1',
-  
+  tableName: 'table1',
+  values:[]
 }
 ```
 
@@ -67,7 +77,46 @@
 
 
 
-### Table - Data Format
+### Delete - Data Format
+
+```json
+{
+  tableName,
+  where:[
+    {
+      field: 'field1',
+      operand: '=' | '<>' | '<' | '>' | '<=' | '>=',
+      value: 'string' | 42
+    }
+  ] or None//same as SELECT
+}
+```
+
+
+
+
+
+### Create Index - Data Format
+
+```json
+{
+  indexName,
+  tableName,
+  fieldNames:[]
+}
+```
+
+
+
+
+
+### Drop Index - Data Format
+
+```json
+{
+  indexName
+}
+```
 
 
 
