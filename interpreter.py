@@ -130,7 +130,7 @@ def parseSelectStatement(command):
         whereString=strings[1]
         wheres=parseWheres(whereString)
     else:
-        wheres=None
+        wheres=[]
 
     rawFields=re.split(',',fieldString)
     fields=[]

@@ -58,7 +58,7 @@
       operand: '=' | '<>' | '<' | '>' | '<=' | '>=',
       value: 'string' | 42
     }
-  ] or None
+  ] //note: array can be empty, like: []
 }
 ```
 
@@ -88,7 +88,7 @@
       operand: '=' | '<>' | '<' | '>' | '<=' | '>=',
       value: 'string' | 42
     }
-  ] or None//same as SELECT
+  ]//same as SELECT
 }
 ```
 
