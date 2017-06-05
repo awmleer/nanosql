@@ -8,7 +8,9 @@ MAX_BUFFER_AMOUNT=64
 
 
 def openFile(filePath):
-    f=open(filePath,'wb+')
+    f=open(filePath,'ab')
+    f.close()
+    f=open(filePath,'rb+')
     fileList[filePath]=f
     return f
 
@@ -101,7 +103,7 @@ def saveAll():
 # just for DEBUG
 if __name__=='__main__':
     # print(blockCount('test.txt'))
-    write('test.txt',0,b'lorm')
+    write('test.txt',0,b'lorem',True)
     saveAll()
     read('test.txt',1)
     # f=openFile('test.txt')
