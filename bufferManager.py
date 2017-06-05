@@ -8,7 +8,7 @@ MAX_BUFFER_AMOUNT=64
 
 
 def openFile(filePath):
-    f=open(filePath,'ab+')
+    f=open(filePath,'wb+')
     fileList[filePath]=f
     return f
 
@@ -33,9 +33,8 @@ def freeBuffer(filePath):
 
 
 def read(filePath,blockPosition,cache=False):
-    if cache:
-        if (filePath in bufferList) and (blockPosition in bufferList[filePath]):
-            return bufferList[filePath][blockPosition]
+    if (filePath in bufferList) and (blockPosition in bufferList[filePath]):
+        return bufferList[filePath][blockPosition]
     f=getFile(filePath)
     f.seek(blockPosition*BLOCK_SIZE,io.SEEK_SET)
     data=f.read(BLOCK_SIZE)
@@ -89,10 +88,9 @@ def save(filePath):
     f=getFile(filePath)
     for position in bufferList[filePath]:
         blockBuffer=bufferList[filePath][position]
-        if blockBuffer['consistent']:
-            continue
-        f.seek(position,io.SEEK_SET)
-        f.write(blockBuffer['data'])
+        if not blockBuffer['consistent']:
+            f.seek(int(position)*BLOCK_SIZE,io.SEEK_SET)
+            f.write(blockBuffer['data'])
 
 
 def saveAll():
@@ -102,7 +100,10 @@ def saveAll():
 
 # just for DEBUG
 if __name__=='__main__':
-    print(blockCount('test.txt'))
+    # print(blockCount('test.txt'))
+    write('test.txt',0,b'lorm')
+    saveAll()
+    read('test.txt',1)
     # f=openFile('test.txt')
     # f.seek(100,io.SEEK_END)
     # print(f.read())
