@@ -1,7 +1,7 @@
 import bufferManager
 def createTable(tableName):
     #find whether exist????
-    write(getTableFileName(tableName),0,b'')
+    bufferManager.write(getTableFileName(tableName),0,b'')
     return True
 def dropTable(tableName):
     #
