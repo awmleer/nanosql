@@ -38,6 +38,7 @@ def run():
                             result = core.execute(command)
                         except Exception as e:
                             logging.exception(e)
+                            command = ''
                             continue
                         print(result)
                         command=''
@@ -48,6 +49,7 @@ def run():
             result=core.execute(command)
         except Exception as e:
             logging.exception(e)
+            command = ''
             continue
         print(result)
         command=''

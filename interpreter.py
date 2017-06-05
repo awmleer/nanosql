@@ -126,7 +126,11 @@ def parseSelectStatement(command):
     fieldString=strings[0]
     strings=re.split(' where ',strings[1])
     fromString=strings[0]
-    whereString=strings[1]
+    if len(strings)>1:
+        whereString=strings[1]
+        wheres=parseWheres(whereString)
+    else:
+        wheres=None
 
     rawFields=re.split(',',fieldString)
     fields=[]
@@ -136,5 +140,5 @@ def parseSelectStatement(command):
     return {
         'fields':fields,
         'from':removeEndsSpaces(fromString),
-        'where':parseWheres(whereString)
+        'where':wheres
     }
