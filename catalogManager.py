@@ -1,6 +1,3 @@
-"""
-Question: how to control the behavior when the we need to change the next block (when space of current block is not enough)
-"""
 import bufferManager
 import json
 """
@@ -10,28 +7,26 @@ len(str)
 """
 """
 todo:
-is "No." necessary in this module?YES
-YES it is useful when we try to delete one table (use No to locate the index of that table....)
-So add No. to where it should be
------------NO we can delete it in dict and convert to list at the end of the program
-So not to remove now,,,, maybe it is useful in future
-
-
+problem: we need the order of fields is the same as when it is created
+so change fields to list
 """
 """
 ```json
 tablesInfo[tableName]={
 'primaryKey':
 'size'*:
-'fields'**:{
+'fields'**:[{
+'name':
 'type':
 'typeParam':
 'unique':
-'index'*:str(indexName) or None}
+'index'*:str(indexName) or None
+}]
 }
 ```
 """
 def openCatelog():
+    global tablesInfo,indicesInfo
     # simple method from json file to dict
     try:
         with open('tableCatalog.txt','r') as infile:
@@ -64,12 +59,12 @@ def closeCatelog():
     with open("indexCatalog.txt",'w') as outfile:
         json.dump(indicesInfo,outfile)
     # for key,value in dict.items(tablesInfo):
-    #     No,numOfColumns,primaryKeyName=value[0:3]
+    #     No,numOfColumns,primaryKey=value[0:3]
     #     tableName=key
     #     fields=[]
     #     for key2,value2 in dict.items(value[3]):
     #         fields+=[key2,str(value2[0]),str(value2[1],str(value2[2]))]
-    #     tablesBlockList+=([str(No),str(True),tableName,str(numOfColumns),primaryKeyName]+fields)
+    #     tablesBlockList+=([str(No),str(True),tableName,str(numOfColumns),primaryKey]+fields)
     # f=open("tableCatalog.txt",'w')
     # f.write(' '.join(tablesBlockList))
     # f.close()
@@ -116,19 +111,20 @@ def tableDictToStr(tableName,tableInfoValue):
 def extend(tableName,primaryKey,fields):
     value={}
     value['primaryKey']=primaryKey
-    value['fields']={}
+    value['fields']=[]
     size=4
     for item in fields:
         if(item['type']=='char'):
             size+=item['typeParam']
         else:
             size+=4 # float or int
-        value['fields'][item['name']]={
+        value['fields'].append({
+        'name':item['name'],
         'type':item['type'],
         'typeParam':item['typeParam'],
         'unique':item['unique'],
         'index':None
-        }
+        })
     value['size']=size
     return value
 # def convertIn(fields):
@@ -142,7 +138,7 @@ def extend(tableName,primaryKey,fields):
 #         value[1]=item['unique']
 #         myFields[item['name']]=value
 #     return myFields
-# def convertOut(tableName, primaryKeyName, fields):
+# def convertOut(tableName, primaryKey, fields):
 #     newFields=[]
 #     for key,value in dict.items(fields):
 #         temp={}
@@ -161,12 +157,12 @@ def extend(tableName,primaryKey,fields):
 #     return {
 #     'tableName':tableName,
 #     'fields':newFields,
-#     'primaryKey':primaryKeyName
+#     'primaryKey':primaryKey
 #     }
 def createTable(tableName,primaryKey,fields):
     """
     :param tableName:
-    :param primaryKeyName:
+    :param primaryKey:
     :param fields:{columnName:[int(type),bool(unique)],bool(index)}(type: -1:int,0:float,1~255:char(1~255))
     :return:successful or not
     this function should record
@@ -216,9 +212,12 @@ def findTable(tableName):
     if(tableName in tablesInfo):
         infoList=tablesInfo[tableName]
         return {'tableName':tableName,'No':infoList[0],'numOfColumns':infoList[1],\
-        'column':infoList[3],'primaryKeyName':infoList[2]}
+        'column':infoList[3],'primaryKey':infoList[2]}
     else:
         return None
+    return tablesInfo[tableName]
+def exist(tableName):
+    return tableName in tablesInfo
 def valueValidation(tableName,row):
     """
     check whether this row is valid for this table
@@ -244,7 +243,11 @@ def addIndexRecord(indexName,tableName, columnName):
     # add to list
     numOfIndices+=1
     # update tablesInfo
-    tablesInfo[tableName]['fields'][columnName]['index']=indexName
+    for field in tablesInfo[tableName]['fields']:
+        if(field['name']!=columnName):
+            continue
+        else:
+            field['index']=indexName
     return True
 def dropIndexRecord(indexName):
     # pop in indicesInfo
@@ -253,9 +256,13 @@ def dropIndexRecord(indexName):
     # reset None in tablesInfo
     tablesInfo[tableName]['fields'][columnName]['index']=None
     return True
-def getAllColumn(tableName):
-    columnList=[]
-    return columnList
+def getFieldsList(tableName):
+    return tablesInfo[tableName]['fields']
+def getTableSize(tableName):
+    # return the size (length) of one record
+    return tablesInfo[tableName]['size']
+def getTableInfo(tableName):
+    return tablesInfo[tableName]
 def getTableSize(tableName):
     """
     :param tableName:
@@ -264,7 +271,7 @@ def getTableSize(tableName):
     return size
 # DEBUG
 tablesBlockList=[]#blocks of str type
-tablesInfo={}#{tableName:[No,numOfColumns,primaryKeyName,{columnName:[type,unique,index]}]}
+tablesInfo={}#{tableName:[No,numOfColumns,primaryKey,{columnName:[type,unique,index]}]}
 indicesBlockList=[]
 indicesInfo={}#{indexName:[No, tableName,columnName]}
 numOfTables=0
@@ -276,7 +283,7 @@ file format of recordCatalog.txt:
 [1]:bool validation,# set when deleted
 [2]:str tableName,
 [3]:int numOfColumns,
-[4]:str primaryKeyName;
+[4]:str primaryKey;
 [5+4*i]str columnName+type+unique?+index?[numOfColumns],
 """
 #initialize tablesBlockList
@@ -321,6 +328,7 @@ if __name__=='__main__':
     tableName='student'
     primaryKey='sno'
     fields=[{'name': 'sno', 'type': 'char', 'unique': False, 'typeParam': 8}, {'name': 'sname', 'type': 'char', 'unique': True, 'typeParam': 16}, {'name': 'sage', 'type': 'int', 'unique': False, 'typeParam': None}, {'name': 'sgender', 'type': 'char', 'unique': False, 'typeParam': 1}]
+    print(tablesInfo)
     createTable(tableName,primaryKey,fields)
     # dropTable('student')
     closeCatelog()
