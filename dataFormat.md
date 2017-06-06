@@ -34,7 +34,7 @@
 
 
 
-### Drop Tabel - Data Format
+### Drop Table - Data Format
 
 ```json
 {

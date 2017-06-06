@@ -24,6 +24,21 @@ def interpret(command):
             'operation': 'delete',
             'data': parseDeleteStatement(command)
         }
+    elif re.match('^drop table',command):
+        return {
+            'operation': 'dropTable',
+            'data': parseDropTableStatement(command)
+        }
+    elif re.match('^create index',command):
+        return {
+            'operation': 'createIndex',
+            'data': None
+        }
+    elif re.match('^drop index',command):
+        return {
+            'operation': 'dropIndex',
+            'data': None
+        }
     else:
         return {
             'operation': 'unknown',
@@ -165,3 +180,16 @@ def parseDeleteStatement(command):
         'from':removeEndsSpaces(fromString),
         'where':wheres
     }
+
+
+
+def parseDropTableStatement(command):
+    tableName=re.sub(
+        '^drop table *',
+        '',
+        re.sub(' *;$','',command)
+    )
+    return {
+        'tableName': tableName
+    }
+
