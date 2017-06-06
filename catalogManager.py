@@ -25,7 +25,7 @@ tablesInfo[tableName]={
 }
 ```
 """
-def openCatelog():
+def openCatalog():
     global tablesInfo,indicesInfo
     # simple method from json file to dict
     try:
@@ -52,7 +52,7 @@ def openCatelog():
     # except IOError:
     #     pass
     return
-def closeCatelog():
+def closeCatalog():
     # from tablesInfo(dict) to json
     with open("tableCatalog.txt",'w') as outfile:
         json.dump(tablesInfo,outfile)
@@ -287,7 +287,7 @@ file format of recordCatalog.txt:
 [5+4*i]str columnName+type+unique?+index?[numOfColumns],
 """
 #initialize tablesBlockList
-openCatelog()
+openCatalog()
 # ORIGINAL method (useful in other managers)
 # i=0
 # length=len(tablesBlockList)
@@ -331,4 +331,4 @@ if __name__=='__main__':
     print(tablesInfo)
     createTable(tableName,primaryKey,fields)
     # dropTable('student')
-    closeCatelog()
+    closeCatalog()
