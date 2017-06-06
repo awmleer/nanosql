@@ -19,8 +19,16 @@ def interpret(command):
             'operation': 'insert',
             'data': None
         }
-    print(command)
-    return re.sub('^ +','1','  aaa')
+    elif re.match('^delete from',command):
+        return {
+            'operation': 'delete',
+            'data': parseDeleteStatement(command)
+        }
+    else:
+        return {
+            'operation': 'unknown',
+            'data': None
+        }
 
 
 
@@ -139,6 +147,21 @@ def parseSelectStatement(command):
 
     return {
         'fields':fields,
+        'from':removeEndsSpaces(fromString),
+        'where':wheres
+    }
+
+
+def parseDeleteStatement(command):
+    strings = re.split('delete from ', command)
+    strings = re.split(' where ', strings[1])
+    fromString = strings[0]
+    if len(strings) > 1:
+        whereString = strings[1]
+        wheres = parseWheres(whereString)
+    else:
+        wheres = []
+    return {
         'from':removeEndsSpaces(fromString),
         'where':wheres
     }
