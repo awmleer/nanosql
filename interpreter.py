@@ -19,8 +19,31 @@ def interpret(command):
             'operation': 'insert',
             'data': None
         }
-    print(command)
-    return re.sub('^ +','1','  aaa')
+    elif re.match('^delete from',command):
+        return {
+            'operation': 'delete',
+            'data': parseDeleteStatement(command)
+        }
+    elif re.match('^drop table',command):
+        return {
+            'operation': 'dropTable',
+            'data': parseDropTableStatement(command)
+        }
+    elif re.match('^create index',command):
+        return {
+            'operation': 'createIndex',
+            'data': None
+        }
+    elif re.match('^drop index',command):
+        return {
+            'operation': 'dropIndex',
+            'data': None
+        }
+    else:
+        return {
+            'operation': 'unknown',
+            'data': None
+        }
 
 
 
@@ -142,3 +165,31 @@ def parseSelectStatement(command):
         'from':removeEndsSpaces(fromString),
         'where':wheres
     }
+
+
+def parseDeleteStatement(command):
+    strings = re.split('delete from ', command)
+    strings = re.split(' where ', strings[1])
+    fromString = strings[0]
+    if len(strings) > 1:
+        whereString = strings[1]
+        wheres = parseWheres(whereString)
+    else:
+        wheres = []
+    return {
+        'from':removeEndsSpaces(fromString),
+        'where':wheres
+    }
+
+
+
+def parseDropTableStatement(command):
+    tableName=re.sub(
+        '^drop table *',
+        '',
+        re.sub(' *;$','',command)
+    )
+    return {
+        'tableName': tableName
+    }
+

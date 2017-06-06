@@ -24,7 +24,7 @@
       name,
       type: 'char' | 'int' | 'float',
       typeParam:
-        { maxLength: <int> } //for char type
+        <int> //for char type, means max length
         None, //for other types
       unique: <boolean>
   }],
@@ -34,7 +34,7 @@
 
 
 
-### Drop Tabel - Data Format
+### Drop Table - Data Format
 
 ```json
 {
@@ -81,7 +81,7 @@
 
 ```json
 {
-  tableName,
+  from,
   where:[
     {
       field: 'field1',
@@ -127,7 +127,7 @@
 ```json
 {
   status: 'success' | 'error',
-  payload: ''
+  payload: ...
 }
 ```
 

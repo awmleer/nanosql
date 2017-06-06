@@ -3,6 +3,11 @@ import bufferManager
 
 def execute(command):
     queryData=interpreter.interpret(command)
+    if queryData['operation']=='unknown':
+        return {
+            'status': 'error',
+            'payload': 'Unknown SQL statement'
+        }
     """
     DROP TABLE:
         - drop index
