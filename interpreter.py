@@ -32,12 +32,12 @@ def interpret(command):
     elif re.match('^create index',command):
         return {
             'operation': 'createIndex',
-            'data': None
+            'data': parseCreateIndexStatement(command)
         }
     elif re.match('^drop index',command):
         return {
             'operation': 'dropIndex',
-            'data': None
+            'data': parseDropIndexStatement(command)
         }
     else:
         return {
@@ -187,9 +187,36 @@ def parseDropTableStatement(command):
     tableName=re.sub(
         '^drop table *',
         '',
-        re.sub(' *;$','',command)
+        re.sub(' *; *$','',command)
     )
     return {
         'tableName': tableName
     }
 
+
+def parseCreateIndexStatement(command):
+    temp=re.split(
+        ' +on +',
+        re.sub('^create index +','',command)
+    )
+    indexName=temp[0]
+    temp=re.split(' *\( *',temp[1])
+    tableName=temp[0]
+    fieldName=re.sub(' *\) *; *$','',temp[1])
+    return {
+        'indexName': indexName,
+        'tableName': tableName,
+        'fieldName': fieldName
+    }
+
+
+
+def parseDropIndexStatement(command):
+    indexName=re.sub(
+        '^drop index *',
+        '',
+        re.sub(' *; *$','',command)
+    )
+    return {
+        'indexName': indexName
+    }

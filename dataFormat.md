@@ -102,7 +102,7 @@
 {
   indexName,
   tableName,
-  fieldNames:[]
+  fieldName
 }
 ```
 

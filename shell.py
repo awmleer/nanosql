@@ -54,3 +54,7 @@ def run():
         print(result)
         command=''
 
+
+
+if __name__ == '__main__':
+    run()
