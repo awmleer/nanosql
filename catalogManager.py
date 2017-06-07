@@ -112,7 +112,7 @@ def extend(tableName,primaryKey,fields):
     value={}
     value['primaryKey']=primaryKey
     value['fields']=[]
-    size=4
+    size=5# int(No)+bool(validation)
     for item in fields:
         if(item['type']=='char'):
             size+=item['typeParam']
