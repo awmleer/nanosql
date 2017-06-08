@@ -36,7 +36,7 @@ def freeBuffer(filePath):
 
 def read(filePath,blockPosition,cache=False):
     if (filePath in bufferList) and (blockPosition in bufferList[filePath]):
-        return bufferList[filePath][blockPosition]
+        return bufferList[filePath][blockPosition]['data']
     f=getFile(filePath)
     f.seek(blockPosition*BLOCK_SIZE,io.SEEK_SET)
     data=f.read(BLOCK_SIZE)
