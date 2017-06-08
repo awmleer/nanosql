@@ -268,7 +268,7 @@ def getTableSize(tableName):
     :param tableName:
     :return: the number of bytes of one row of record
     """
-    return size
+    return tablesInfo[tableName]['size']
 # DEBUG
 tablesBlockList=[]#blocks of str type
 tablesInfo={}#{tableName:[No,numOfColumns,primaryKey,{columnName:[type,unique,index]}]}
@@ -326,8 +326,12 @@ openCatalog()
 
 if __name__=='__main__':
     tableName='student'
-    primaryKey='sno'
-    fields=[{'name': 'sno', 'type': 'char', 'unique': False, 'typeParam': 8}, {'name': 'sname', 'type': 'char', 'unique': True, 'typeParam': 16}, {'name': 'sage', 'type': 'int', 'unique': False, 'typeParam': None}, {'name': 'sgender', 'type': 'char', 'unique': False, 'typeParam': 1}]
+    primaryKey='no'
+    fields=[
+     {'name': 'no', 'type': 'char', 'unique': True, 'typeParam': 8},
+     {'name': 'age', 'type': 'int', 'unique': False, 'typeParam': None},
+     {'name': 'grade', 'type': 'float', 'unique': False, 'typeParam': None}
+     ]
     print(tablesInfo)
     createTable(tableName,primaryKey,fields)
     # dropTable('student')

@@ -15,14 +15,13 @@ import math
 # little end by default
 """
 todo:
-is it a good choice to use pack() to add 'No' directly?
-maybe....
-
-remember to read 占位符 at the end of each block
+when we encode a str to bytes that len is not enought, we use b'0' to 占位,
+But how could be decode this bytes to str?
+str.strip('\x00')
 """
 def strToBytes(string,size):
     by = str.encode(string)
-    by += b"0" * (size - len(by))
+    by += b"\x00" * (size - len(by))
     return by
 def pack(tableName,recordList, fieldsList):
     i=0
@@ -39,23 +38,24 @@ def pack(tableName,recordList, fieldsList):
     return bytesList
 def unpack(bytesRecord,fieldsList):
     i=0
-
+    recordList=[]
     # if valid
-    if not struct.unpack('?',bytesRecord[4]):
+    if not struct.unpack('?',bytesRecord[4:5])[0]:
         return []
     # ignore 'No' at first
     bytesRecord=bytesRecord[5:]
     for field in fieldsList:
         if(field['type']=='int'):
-            recordList.append(struct.unpack('i', bytesRecord[i])[0])
+            recordList.append(struct.unpack('i', bytesRecord[i:i+4])[0])
             i+=4
         elif(field['type']=='float'):
-            recordList.append(struct.unpack('f', bytesRecord[i])[0])
+            recordList.append(struct.unpack('f', bytesRecord[i:i+4])[0])
             i+=4
         else:
-            string=bytes.decode(bytesRecord[i])
+            strLength=field['typeParam']
+            string=bytes.decode(bytesRecord[i:i+strLength]).strip('\x00')
             recordList.append(string)
-            i+=len(string)
+            i+=(strLength)
     return recordList
 def countRecord(tableName):
     """
@@ -64,20 +64,17 @@ def countRecord(tableName):
     size=catalogManager.getTableSize(tableName)
     fileName=getTableFileName(tableName)
     blockCount=bufferManager.blockCount(fileName)
+    if(blockCount==0):
+        return 0
     count=(blockCount-1)*math.floor(bufferManager.BLOCK_SIZE/size)
-    lastBlock=bufferManager.read(fileName,blockCount-1,cache=True)
-    return count+len(lastBlock)/size
+    lastBlock=bufferManager.read(fileName,blockCount-1,cache=False)
+    return count+math.ceil(len(lastBlock)/size)
 def createTable(tableName):
     #find whether exist????
     if catalogManager.exist(tableName):
         return {  'status':'error','payload': 'table already exists'}
     fileName=getTableFileName(tableName)
-    bufferManager.write(fileName,0,(10086).to_bytes(4, byteorder='big'),cache=False)
-    a=bufferManager.read(fileName,0)
-    print(len(a))
-    b=int.from_bytes(a, byteorder='big')
-    print(b)
-    bufferManager.save(fileName)
+    bufferManager.write(fileName,0,b'',cache=False)
     return {  'status':'success','payload': ''}
 def dropTable(tableName):
     bufferManager.delete(getTableFileName(tableName))
@@ -89,76 +86,69 @@ def insertValues(tableName, recordList):
     for item in recordList:
         # find unique(include primaryKey)(traverse all column) duplicated?
         pass
-    fieldsList=catalogManager.getFieldsList()
-    bytesRecord=b''.join(pack(recordList,fieldsList))
+    fieldsList=catalogManager.getFieldsList(tableName)
+    bytesRecord=b''.join(pack(tableName,recordList,fieldsList))
     # append the the last
     blockCount=bufferManager.blockCount(fileName)
-    lastBlock=bufferManager.read(fileName,blockCount-1,cache=True)
+    if blockCount==0:
+        blockCount=1
+    lastBlock=bufferManager.read(fileName,blockCount-1,cache=False)
     size=catalogManager.getTableSize(tableName)
     freeSpace=bufferManager.BLOCK_SIZE-len(lastBlock)
     if freeSpace>=size:
         #append to current blockBuffer
-        bufferManager.write(fileName,blockCount-1,b''.join([lastBlock,bytesRecord]),cache=True)
+        bufferManager.write(fileName,blockCount-1,b''.join([lastBlock,bytesRecord]),cache=False)
     else:
         #塞入占位符 first
-        bufferManager.write(fileName,blockCount-1,b'0'*freeSpace,cache=True)
+        bufferManager.write(fileName,blockCount-1,b'0'*freeSpace,cache=False)
         #append to next blockBuffer
-        bufferManager.write(fileName,blockCount,bytesRecord,cache=True)
-    return return {  'status':'success','payload': ''}
+        bufferManager.write(fileName,blockCount,bytesRecord,cache=False)
+    return {  'status':'success','payload': ''}
 def delete(tableName,where):
     # get each rows
     # satisfy conditions?
-    fileName=getTableFileName(fileName)
+    fileName=getTableFileName(tableName)
     blockCount=bufferManager.blockCount(fileName)
     size=catalogManager.getTableSize(tableName)
     recordList=[]
     count=0
-    if where=[]:
+    if where==[]:
         #delete all
-        for block in range(blockCount):
-            blockContent=bufferManager.read(fileName,blockNo,cache=True)
-            ba=bytearray(blockContent)
-            rows=len(blockContent)//size
-            for i in range(rows):
-                # how to manipulate bytes object
-                ba[i*size+4]=0
-                count+=1
-            #no need to append 占位符 at last
-            bufferManager.write(fileName,blockNo,byte(ba),cache=True)
-        return count
+        myWhere=[]
     # if condition is not empty
-    myWhere=convertInWhere(where)
+    myWhere=convertInWhere(tableName,where)
     for blockNo in range(blockCount):
         # this is a copy
-        blockContent=bufferManager.read(fileName,blockNo,cache=True)
+        blockContent=bufferManager.read(fileName,blockNo,cache=False)
         ba=bytearray(blockContent)
         # divide this blockContent into rows
         rows=len(blockContent)//size
-        flag=True
         for i in range(rows):
-            oneRecord=unpack(blockContent[i*size:(i+1)*size])
+            oneRecord=unpack(blockContent[i*size:(i+1)*size],catalogManager.getFieldsList(tableName))
             if(oneRecord==[]):# deleted before
                 continue
+            flag=True
             for condition in myWhere:
-                if not (eval(''.join([oneRecord[condition['field']],condition['operand'],condition['value']]))):
+                if not (eval(''.join([str(oneRecord[condition['field']]),condition['operand'],str(condition['value'])]))):
                     flag=False
                     break
             if flag:
                 # i think i should change validation bit directly
                 ba[i*size+4]=0
                 count+=1
-        bufferManager.write(fileName,blockNo,byte(ba),cache=True)
-    return count
-def fieldsNameTofieldsNo(fieldName):
+        bufferManager.write(fileName,blockNo,bytes(ba),cache=False)
+    return {'status': 'success', 'payload': count}
+def fieldsNameTofieldsNo(tableName,fieldName):
     i=0
-    for field in catalogManager.getFieldsList():
+    for field in catalogManager.getFieldsList(tableName):
         if field['name']==fieldName:
             return i
         else:
             i+=1
-def convertInWhere(where):
+    return None
+def convertInWhere(tableName,where):
     for condition in where:
-        condition['from']=fieldsNameTofieldsNo(condition['from'])
+        condition['field']=fieldsNameTofieldsNo(tableName,condition['field'])
         if(condition['operand']=='<>'):
             condition['operand']='!='
         elif(condition['operand']=='='):
@@ -168,49 +158,53 @@ def select(tableName,fields,where):
     """
     select and project
     """
-    """
-    todo:
-    how to convert fields name to fields No?
-    """
     # get each rows
     # satisfy conditions?
-    fileName=getTableFileName(fileName)
+    fileName=getTableFileName(tableName)
     blockCount=bufferManager.blockCount(fileName)
     size=catalogManager.getTableSize(tableName)
     recordList=[]
-    myWhere=convertInWhere(where)
+    if(where==[]):
+        # select all!!!!!
+        myWhere=[]
+    else:
+        print(where)
+        myWhere=convertInWhere(tableName,where)
+    myFields=[]
+    if(fields==['*']):
+        myFields=['*']
+    else:
+        for item in fields:
+            myFields.append(fieldsNameTofieldsNo(tableName,item))
     for blockNo in range(blockCount):
         # this is a copy
-        blockContent=bufferManager.read(fileName,blockNo,cache=True)
+        blockContent=bufferManager.read(fileName,blockNo,cache=False)
         # divide this block into rows
         rows=len(blockContent)//size
-        flag=True
         for i in range(rows):
-            oneRecord=unpack(blockContent[i*size:(i+1)*size])
+            oneRecord=unpack(blockContent[i*size:(i+1)*size],catalogManager.getFieldsList(tableName))
+            if(oneRecord==[]):
+                continue
+            flag=True
             for condition in myWhere:
-                if not (eval(''.join([oneRecord[condition['field']],condition['operand'],condition['value']]))):
+                if not (eval(''.join([str(oneRecord[condition['field']]),condition['operand'],str(condition['value'])]))):
                     flag=False
             if flag:
+                #project
+                newRecord=[]
+                if(myFields==['*']):
+                    newRecord=oneRecord
+                else:
+                    for No in myFields:
+                        #copy !!!
+                        newRecord.append(oneRecord[No])
                 #append
-                recordList.append(oneRecord)
+                recordList.append(newRecord)
     return recordList
 def getTableFileName(tableName):
     return ''.join([tableName,'.txt'])
 if __name__=='__main__':
     # createTable('student')
-    recordList=['123','123','123']
-    fieldsList=[
-    {
-    'type':'int',
-    'typeParam':None
-    },
-    {
-    'type':'float',
-    'typeParam':None
-    },
-    {
-    'type':'char',
-    'typeParam':10
-    }
-    ]
-    print(unpack(pack(recordList,fieldsList),fieldsList))
+    print(insertValues('student',['0000','90','19.0']))
+    print(select('student',['*'],[{'field':'age','operand':'=','value':20}]))
+    print(delete('student',[]))
