@@ -81,7 +81,11 @@ def delete(filePath):
 def blockCount(filePath):
     f=getFile(filePath)
     f.seek(0,io.SEEK_END)
-    return math.ceil(f.tell()/BLOCK_SIZE)
+    count=math.ceil(f.tell()/BLOCK_SIZE)
+    if filePath in bufferList:
+        for position in bufferList[filePath]:
+            if position>count: count=position+1
+    return count
 
 
 def save(filePath):
@@ -103,9 +107,10 @@ def saveAll():
 # just for DEBUG
 if __name__=='__main__':
     # print(blockCount('test.txt'))
-    write('test.txt',0,b'lorem',True)
-    saveAll()
-    read('test.txt',1)
+    # write('test.txt',2,b'lorem',True)
+    print(blockCount('test.txt'))
+    # saveAll()
+    # read('test.txt',1)
     # f=openFile('test.txt')
     # f.seek(100,io.SEEK_END)
     # print(f.read())
