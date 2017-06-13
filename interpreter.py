@@ -17,7 +17,7 @@ def interpret(command):
     elif re.match('^insert',command):
         return {
             'operation': 'insert',
-            'data': None
+            'data': parseInsert(command)
         }
     elif re.match('^delete from',command):
         return {
@@ -112,6 +112,25 @@ def parseCreateTableStatement(command):
         'primaryKey':primaryKey
     }
 
+
+
+def parseInsert(command):
+    temp=re.split(' +values +',command)
+    tableName=re.sub(' *insert into *','',temp[0])
+    valuesString=re.sub(
+        ' *\) *; *','',
+        re.sub('\( *','',temp[1])
+    )
+    rawValues=re.split(',',valuesString)
+    values=[]
+    for rawValue in rawValues:
+        value=re.sub('\' *$','',rawValue)
+        value=re.sub('^ *\'','',value)
+        values.append(value)
+    return {
+        'tableName':tableName,
+        'values':values
+    }
 
 
 

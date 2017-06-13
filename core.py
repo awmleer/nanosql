@@ -23,6 +23,12 @@ def execute(command):
             'status': 'success',
             'payload': 'Table'+queryData['data']['tableName']+' successfully created.'
         }
+    if queryData['operation']=='insert':
+        executeInsert(queryData['data'])
+        return {
+            'status': 'success',
+            'payload': 'Successfully inserted a record into table '+queryData['data']['tableName']
+        }
     return queryData
 
 
@@ -30,6 +36,9 @@ def executeCreateTable(data):
     fields = data['fields']
     catalogManager.createTable(data['tableName'], data['primaryKey'], fields)
     columnCount=0
+    for field in fields:
+        if field['name']==data['primaryKey']:  # auto set primary key to unique
+            field['unique']=True
     for field in fields:
         if field['unique']:
             catalogManager.createIndex('autoIndex'+data['tableName'],data['tableName'],columnCount)
@@ -40,6 +49,13 @@ def executeCreateTable(data):
         if field['unique']:
             indexManager.createIndex('autoIndex'+data['tableName'],data['tableName'],columnCount)
         columnCount+=1
+
+
+def executeInsert(data):
+    recordManager.insert(data['tableName'],data['values'])
+
+
+
 
 
 def quit():

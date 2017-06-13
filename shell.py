@@ -10,6 +10,8 @@ def run():
     while True:
         print(colored.green('> '), end='', flush=True)
         line = stdin.readline()
+        if len(line)<=1:  # if get an empty line
+            continue
         while line[-1]==' ' or line[-1]=='\n':
             line=line[0:-1]
         command+=line
