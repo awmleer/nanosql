@@ -4,6 +4,7 @@ Question: how to control the behavior when the we need to change the next block 
 import bufferManager
 import struct
 import catalogManager
+import indexManager
 import math
 # bytes conversion
 ###(10086).to_bytes(4, byteorder='big')
@@ -15,10 +16,11 @@ import math
 # little end by default
 """
 todo:
-when we encode a str to bytes that len is not enought, we use b'0' to 占位,
-But how could be decode this bytes to str?
-str.strip('\x00')
+use selectIndex inside select function
+todo:
+delete using index
 """
+
 def strToBytes(string,size):
     by = str.encode(string)
     by += b"\x00" * (size - len(by))
@@ -26,7 +28,8 @@ def strToBytes(string,size):
 def pack(tableName,recordList, fieldsList):
     i=0
     # add No at first, add validation at second
-    bytesList=[struct.pack('i',countRecord(tableName)),struct.pack('?',1)]
+    count=countRecord(tableName)
+    bytesList=[struct.pack('i',count),struct.pack('?',1)]
     for field in fieldsList:
         if(field['type']=='int'):
             bytesList.append(struct.pack('i', int(recordList[i])))
@@ -35,7 +38,8 @@ def pack(tableName,recordList, fieldsList):
         else:
             bytesList.append(strToBytes(recordList[i],field['typeParam']))
         i+=1
-    return bytesList
+
+    return count,b''.join(bytesList)
 def unpack(bytesRecord,fieldsList):
     i=0
     recordList=[]
@@ -43,6 +47,28 @@ def unpack(bytesRecord,fieldsList):
     if not struct.unpack('?',bytesRecord[4:5])[0]:
         return []
     # ignore 'No' at first
+    bytesRecord=bytesRecord[5:]
+    for field in fieldsList:
+        if(field['type']=='int'):
+            recordList.append(struct.unpack('i', bytesRecord[i:i+4])[0])
+            i+=4
+        elif(field['type']=='float'):
+            recordList.append(struct.unpack('f', bytesRecord[i:i+4])[0])
+            i+=4
+        else:
+            strLength=field['typeParam']
+            string=bytes.decode(bytesRecord[i:i+strLength]).strip('\x00')
+            recordList.append(string)
+            i+=(strLength)
+    return recordList
+def unpackWithNo(bytesRecord,fieldsList):
+    i=0
+    recordList=[]
+    # if valid
+    if not struct.unpack('?',bytesRecord[4:5])[0]:
+        return []
+    # unpack No first
+    recordList.append(struct.unpack('i', bytesRecord[0:4])[0])
     bytesRecord=bytesRecord[5:]
     for field in fieldsList:
         if(field['type']=='int'):
@@ -67,42 +93,69 @@ def countRecord(tableName):
     if(blockCount==0):
         return 0
     count=(blockCount-1)*math.floor(bufferManager.BLOCK_SIZE/size)
-    lastBlock=bufferManager.read(fileName,blockCount-1,cache=False)
+    lastBlock=bufferManager.read(fileName,blockCount-1,cache=True)
     return count+math.ceil(len(lastBlock)/size)
 def createTable(tableName):
     #find whether exist????
     if catalogManager.exist(tableName):
         return {  'status':'error','payload': 'table already exists'}
     fileName=getTableFileName(tableName)
-    bufferManager.write(fileName,0,b'',cache=False)
+    bufferManager.write(fileName,0,b'',cache=True)
     return {  'status':'success','payload': ''}
 def dropTable(tableName):
     bufferManager.delete(getTableFileName(tableName))
     return True
-def insertValues(tableName, recordList):
+def insert(tableName, recordList):
     fileName=getTableFileName(tableName)
     if not catalogManager.exist(tableName):
         return {  'status':'error','payload': 'table does not exist'}
+    fieldsList=catalogManager.getFieldsList(tableName)
+    i=0
+    for field in fieldsList:
+        if not field['unique']:
+            i+=1
+            continue
+        if(field['type']=='int'):
+            key=int(recordList[i])
+        elif(field['type']=='float'):
+            key=float(recordList[i])
+        else:
+            key=str(recordList[i])
+        if (select('student',['*'],[{'field':field['name'],'operand':'=','value':key}])) !=[]
+        i+=1
     for item in recordList:
         # find unique(include primaryKey)(traverse all column) duplicated?
+        
         pass
-    fieldsList=catalogManager.getFieldsList(tableName)
-    bytesRecord=b''.join(pack(tableName,recordList,fieldsList))
+
+    no,bytesRecord=pack(tableName,recordList,fieldsList)
     # append the the last
     blockCount=bufferManager.blockCount(fileName)
     if blockCount==0:
         blockCount=1
-    lastBlock=bufferManager.read(fileName,blockCount-1,cache=False)
+    lastBlock=bufferManager.read(fileName,blockCount-1,cache=True)
     size=catalogManager.getTableSize(tableName)
     freeSpace=bufferManager.BLOCK_SIZE-len(lastBlock)
     if freeSpace>=size:
         #append to current blockBuffer
-        bufferManager.write(fileName,blockCount-1,b''.join([lastBlock,bytesRecord]),cache=False)
+        bufferManager.write(fileName,blockCount-1,b''.join([lastBlock,bytesRecord]),cache=True)
     else:
         #塞入占位符 first
-        bufferManager.write(fileName,blockCount-1,b'0'*freeSpace,cache=False)
+        bufferManager.write(fileName,blockCount-1,b'0'*freeSpace,cache=True)
         #append to next blockBuffer
-        bufferManager.write(fileName,blockCount,bytesRecord,cache=False)
+        bufferManager.write(fileName,blockCount,bytesRecord,cache=True)
+    # insert index
+    for indexItem in catalogManager.getIndexList(tableName):
+        # [indexName, tableName, columnNo]
+        indexName=indexItem[0]
+        columnNo=indexItem[2]
+        key=recordList[columnNo]
+        # select type
+        if(fieldsList[columnNo]['type']=='int'):
+            key=int(key)
+        elif(fieldsList[columnNo]['type']=='float'):
+            key=float(key)
+        indexManager.insertIndex(indexName,key,no)
     return {  'status':'success','payload': ''}
 def delete(tableName,where):
     # get each rows
@@ -119,7 +172,7 @@ def delete(tableName,where):
     myWhere=convertInWhere(tableName,where)
     for blockNo in range(blockCount):
         # this is a copy
-        blockContent=bufferManager.read(fileName,blockNo,cache=False)
+        blockContent=bufferManager.read(fileName,blockNo,cache=True)
         ba=bytearray(blockContent)
         # divide this blockContent into rows
         rows=len(blockContent)//size
@@ -129,14 +182,14 @@ def delete(tableName,where):
                 continue
             flag=True
             for condition in myWhere:
-                if not (eval(''.join([str(oneRecord[condition['field']]),condition['operand'],str(condition['value'])]))):
+                if not (eval(''.join([repr(oneRecord[condition['field']]),condition['operand'],repr(condition['value'])]))):
                     flag=False
                     break
             if flag:
                 # i think i should change validation bit directly
                 ba[i*size+4]=0
                 count+=1
-        bufferManager.write(fileName,blockNo,bytes(ba),cache=False)
+        bufferManager.write(fileName,blockNo,bytes(ba),cache=True)
     return {'status': 'success', 'payload': count}
 def fieldsNameTofieldsNo(tableName,fieldName):
     i=0
@@ -160,16 +213,27 @@ def select(tableName,fields,where):
     """
     # get each rows
     # satisfy conditions?
-    fileName=getTableFileName(tableName)
-    blockCount=bufferManager.blockCount(fileName)
-    size=catalogManager.getTableSize(tableName)
-    recordList=[]
+    # if we can select using index
     if(where==[]):
         # select all!!!!!
         myWhere=[]
     else:
-        print(where)
         myWhere=convertInWhere(tableName,where)
+    indexName=catalogManager.getIndexName(tableName,myWhere[0]['field'])
+    if len(myWhere)==1 and indexName is not None and myWhere[0]['operand'] == '=':
+        #convert type
+        value=myWhere[0]['value']
+        if(field['type']=='int'):
+            value=int(value)
+        elif(field['type']=='float'):
+            value=float(value)
+        return indexManager.select(indexName,value)
+    # else we use default select methods
+    fileName=getTableFileName(tableName)
+    blockCount=bufferManager.blockCount(fileName)
+    size=catalogManager.getTableSize(tableName)
+    recordList=[]
+
     myFields=[]
     if(fields==['*']):
         myFields=['*']
@@ -178,7 +242,7 @@ def select(tableName,fields,where):
             myFields.append(fieldsNameTofieldsNo(tableName,item))
     for blockNo in range(blockCount):
         # this is a copy
-        blockContent=bufferManager.read(fileName,blockNo,cache=False)
+        blockContent=bufferManager.read(fileName,blockNo,cache=True)
         # divide this block into rows
         rows=len(blockContent)//size
         for i in range(rows):
@@ -201,10 +265,58 @@ def select(tableName,fields,where):
                 #append
                 recordList.append(newRecord)
     return recordList
+def selectWithNo(tableName,columnName):
+    fileName=getTableFileName(tableName)
+    blockCount=bufferManager.blockCount(fileName)
+    size=catalogManager.getTableSize(tableName)
+    recordList=[]
+    fieldNo=fieldsNameTofieldsNo(tableName,columnName)
+    for blockNo in range(blockCount):
+        # this is a copy
+        blockContent=bufferManager.read(fileName,blockNo,cache=True)
+        # divide this block into rows
+        rows=len(blockContent)//size
+        for i in range(rows):
+            oneRecord=unpackWithNo(blockContent[i*size:(i+1)*size],catalogManager.getFieldsList(tableName))
+            if(oneRecord==[]):
+                continue
+            recordList.append([oneRecord[fieldNo+1],oneRecord[0]])# key and value
+    recordList=sorted(recordList,key=lambda record:record[0])
+    return recordList
 def getTableFileName(tableName):
     return ''.join([tableName,'.txt'])
+def testInsert():
+    print(insert('student',['0000','90','19.0']))
+    print(insert('student',['0001','99','20.0']))
+    print(insert('student',['0002','91','21.0']))
+    print(insert('student',['0003','92','22.0']))
+    print(insert('student',['0004','93','23.0']))
+    print(insert('student',['0005','94','24.0']))
+    print(insert('student',['0006','95','25.0']))
+    print(insert('student',['0007','96','26.0']))
+    print(insert('student',['0008','97','27.0']))
+    print(insert('student',['0009','98','28.0']))
+    print(insert('student',['0010','100','29.0']))
+    print(insert('student',['0011','101','30.0']))
+    print(insert('student',['0012','102','31.0']))
+    print(insert('student',['0013','103','32.0']))
+def testSelect():
+    print(select('student',['*'],[
+    {'field':'age','operand':'<>','value':99}
+    ]))
+def testDelete():
+    delete('student',[
+    {'field':'age','operand':'=','value':91}
+        ])
+    # delete('student',[])
+def testInsertAdditional():
+    insert('student',['0014','91','104.0'])
 if __name__=='__main__':
     # createTable('student')
-    print(insertValues('student',['0000','90','19.0']))
-    print(select('student',['*'],[{'field':'age','operand':'=','value':20}]))
-    print(delete('student',[]))
+    testInsertAdditional()
+    # testInsert()
+    testSelect()
+    # testInsert()
+    indexManager.closeIndices()
+    bufferManager.saveAll()
+

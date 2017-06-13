@@ -185,7 +185,6 @@ def createTable(tableName,primaryKey,fields):
     # NO need anymore
     # tablesBlockList+=tableDictToStr(tableName,tablesInfo[tableName])
     # write list
-    addIndexRecord(''.join(['index_',primaryKey]),tableName,primaryKey)
     return True
 def dropTable(tableName):
     """
@@ -222,32 +221,27 @@ def valueValidation(tableName,row):
     """
     check whether this row is valid for this table
     """
-def getIndexName(tableName,columnName):
+def getIndexName(tableName,columnNo):
     """
     give tableName&columnName, return indexName if there is index(else return '')
     """
-    indexName=''
-    return indexName
+    for key,value in indicesInfo:
+        if value[0]==tableName and value[1]==columnNo
+        return indexName
+    return None
 def getTableAndColumnName(indexName):
     """
     give indexName, return [tableName,columnName]
     """
-    return [indicesInfo[indexName]['tableName'],indicesInfo[indexName]['columnName']]
-def addIndexRecord(indexName,tableName, columnName):
+    return (indicesInfo[indexName])
+def addIndexRecord(indexName,tableName, columnNo):
     # add to dict
     global numOfIndices,indicesBlockList
-    indicesInfo[indexName]={
-    'tableName':tableName,
-    'columnName':columnName
-    }
+    indicesInfo[indexName]=[tableName,columnNo]
     # add to list
     numOfIndices+=1
     # update tablesInfo
-    for field in tablesInfo[tableName]['fields']:
-        if(field['name']!=columnName):
-            continue
-        else:
-            field['index']=indexName
+    tablesInfo[tableName]['fields'][columnNo]['index']=indexName
     return True
 def dropIndexRecord(indexName):
     # pop in indicesInfo
@@ -269,6 +263,12 @@ def getTableSize(tableName):
     :return: the number of bytes of one row of record
     """
     return tablesInfo[tableName]['size']
+def getIndexList(tableName):
+    indexList=[]
+    for key,value in dict.items(indicesInfo):
+        if (value[0]==tableName):
+            indexList.append([key]+value)
+    return indexList
 # DEBUG
 tablesBlockList=[]#blocks of str type
 tablesInfo={}#{tableName:[No,numOfColumns,primaryKey,{columnName:[type,unique,index]}]}
@@ -323,8 +323,7 @@ openCatalog()
 #         numOfIndices+=1
 # tablesBlockList=[]# can we put this line after we read it to dict in __init__()????? (save memory)
 # indicesBlockList=[]# can we put this line after we read it to dict in __init__()????? (save memory)
-
-if __name__=='__main__':
+def testCreateTable():
     tableName='student'
     primaryKey='no'
     fields=[
@@ -332,7 +331,13 @@ if __name__=='__main__':
      {'name': 'age', 'type': 'int', 'unique': False, 'typeParam': None},
      {'name': 'grade', 'type': 'float', 'unique': False, 'typeParam': None}
      ]
-    print(tablesInfo)
     createTable(tableName,primaryKey,fields)
+def testCreateIndex():
+    addIndexRecord('idx_student','student',0)
+    addIndexRecord('idx_age','student',1)
+if __name__=='__main__':
+    testCreateTable()
+    testCreateIndex()
+    print(indicesInfo)
     # dropTable('student')
     closeCatalog()

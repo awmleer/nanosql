@@ -84,7 +84,7 @@ def blockCount(filePath):
     count=math.ceil(f.tell()/BLOCK_SIZE)
     if filePath in bufferList:
         for position in bufferList[filePath]:
-            if position>count: count=position+1
+            if position>=count: count=position+1
     return count
 
 
