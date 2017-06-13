@@ -97,7 +97,7 @@ def countRecord(tableName):
     return count+math.ceil(len(lastBlock)/size)
 def createTable(tableName):
     #find whether exist????
-    if catalogManager.exist(tableName):
+    if catalogManager.existTable(tableName):
         return {  'status':'error','payload': 'table already exists'}
     fileName=getTableFileName(tableName)
     bufferManager.write(fileName,0,b'',cache=True)
@@ -107,7 +107,7 @@ def dropTable(tableName):
     return True
 def insert(tableName, recordList):
     fileName=getTableFileName(tableName)
-    if not catalogManager.exist(tableName):
+    if not catalogManager.existTable(tableName):
         return {  'status':'error','payload': 'table does not exist'}
     fieldsList=catalogManager.getFieldsList(tableName)
     i=0
@@ -116,16 +116,16 @@ def insert(tableName, recordList):
             i+=1
             continue
         if(field['type']=='int'):
-            key=int(recordList[i])
+            value=int(recordList[i])
         elif(field['type']=='float'):
-            key=float(recordList[i])
+            value=float(recordList[i])
         else:
-            key=str(recordList[i])
-        if (select('student',['*'],[{'field':field['name'],'operand':'=','value':key}])) !=[]
+            value=str(recordList[i])
+        if (select('student',['*'],[{'field':field['name'],'operand':'=','value':value}])) !=[[]]:
+            return {  'status':'error','payload': 'duplicated unique key'}
         i+=1
     for item in recordList:
         # find unique(include primaryKey)(traverse all column) duplicated?
-        
         pass
 
     no,bytesRecord=pack(tableName,recordList,fieldsList)
@@ -141,7 +141,7 @@ def insert(tableName, recordList):
         bufferManager.write(fileName,blockCount-1,b''.join([lastBlock,bytesRecord]),cache=True)
     else:
         #塞入占位符 first
-        bufferManager.write(fileName,blockCount-1,b'0'*freeSpace,cache=True)
+        bufferManager.write(fileName,blockCount-1,b''.join([lastBlock,b'\x00'*freeSpace]),cache=True)
         #append to next blockBuffer
         bufferManager.write(fileName,blockCount,bytesRecord,cache=True)
     # insert index
@@ -214,20 +214,22 @@ def select(tableName,fields,where):
     # get each rows
     # satisfy conditions?
     # if we can select using index
+    fieldsList=catalogManager.getFieldsList(tableName)
     if(where==[]):
         # select all!!!!!
         myWhere=[]
     else:
         myWhere=convertInWhere(tableName,where)
-    indexName=catalogManager.getIndexName(tableName,myWhere[0]['field'])
-    if len(myWhere)==1 and indexName is not None and myWhere[0]['operand'] == '=':
-        #convert type
-        value=myWhere[0]['value']
-        if(field['type']=='int'):
-            value=int(value)
-        elif(field['type']=='float'):
-            value=float(value)
-        return indexManager.select(indexName,value)
+        indexName=catalogManager.getIndexName(tableName,myWhere[0]['field'])
+        if len(myWhere)==1 and indexName is not None and myWhere[0]['operand'] == '==':
+            #convert type
+            value=myWhere[0]['value']
+            type=fieldsList[myWhere[0]['field']]['type']
+            if(type=='int'):
+                value=int(value)
+            elif(type=='float'):
+                value=float(value)
+            return indexManager.select(indexName,fields,value)
     # else we use default select methods
     fileName=getTableFileName(tableName)
     blockCount=bufferManager.blockCount(fileName)
@@ -246,12 +248,12 @@ def select(tableName,fields,where):
         # divide this block into rows
         rows=len(blockContent)//size
         for i in range(rows):
-            oneRecord=unpack(blockContent[i*size:(i+1)*size],catalogManager.getFieldsList(tableName))
+            oneRecord=unpack(blockContent[i*size:(i+1)*size],fieldsList)
             if(oneRecord==[]):
                 continue
             flag=True
             for condition in myWhere:
-                if not (eval(''.join([str(oneRecord[condition['field']]),condition['operand'],str(condition['value'])]))):
+                if not (eval(''.join([repr(oneRecord[condition['field']]),condition['operand'],repr(condition['value'])]))):
                     flag=False
             if flag:
                 #project
@@ -286,35 +288,26 @@ def selectWithNo(tableName,columnName):
 def getTableFileName(tableName):
     return ''.join([tableName,'.txt'])
 def testInsert():
-    print(insert('student',['0000','90','19.0']))
-    print(insert('student',['0001','99','20.0']))
-    print(insert('student',['0002','91','21.0']))
-    print(insert('student',['0003','92','22.0']))
-    print(insert('student',['0004','93','23.0']))
-    print(insert('student',['0005','94','24.0']))
-    print(insert('student',['0006','95','25.0']))
-    print(insert('student',['0007','96','26.0']))
-    print(insert('student',['0008','97','27.0']))
-    print(insert('student',['0009','98','28.0']))
-    print(insert('student',['0010','100','29.0']))
-    print(insert('student',['0011','101','30.0']))
-    print(insert('student',['0012','102','31.0']))
-    print(insert('student',['0013','103','32.0']))
+    myRange=100
+    for i in range(myRange):
+        print(insert('student',['{:05d}'.format(i),'{:05d}'.format(myRange-i),'{:05.1f}'.format(i/2)]))
 def testSelect():
     print(select('student',['*'],[
-    {'field':'age','operand':'<>','value':99}
+    {'field':'no','operand':'=','value':'00010'}
     ]))
 def testDelete():
     delete('student',[
-    {'field':'age','operand':'=','value':91}
+    # {'field':'age','operand':'=','value':91}
         ])
     # delete('student',[])
 def testInsertAdditional():
     insert('student',['0014','91','104.0'])
+
 if __name__=='__main__':
     # createTable('student')
-    testInsertAdditional()
-    # testInsert()
+    # testInsertAdditional()
+    testDelete()
+    testInsert()
     testSelect()
     # testInsert()
     indexManager.closeIndices()

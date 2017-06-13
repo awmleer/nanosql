@@ -582,16 +582,9 @@ class BPlusTreeTests(unittest.TestCase):
             [(i,str(i)) for i in range(2000)])
 def main():
     # bulkload
-    bt=BPlusTree.bulkload([(i,str(i)) for i in range(30)],20)
-    # insert
-    print(bt[20])
-    bt.remove(20)
-    l = list(range(20, 0, -1))
-    for item in l:
-        bt.insert(str(item),(item))
-        # assert list(bt)==l[:i + 1]
-    # remove
-
+    bt=BPlusTree(128)
+    for i in range(1000000):
+        bt.insert(i,i+12)
 if __name__ == '__main__':
     # unittest.main()
     main()

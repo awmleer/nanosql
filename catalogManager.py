@@ -1,4 +1,3 @@
-import bufferManager
 import json
 """
 bytes to string : btyes.decode()
@@ -25,6 +24,8 @@ tablesInfo[tableName]={
 }
 ```
 """
+tablesInfo={}
+indicesInfo={}#{indexName:[ tableName,columnNo]}
 def openCatalog():
     global tablesInfo,indicesInfo
     # simple method from json file to dict
@@ -38,76 +39,12 @@ def openCatalog():
     except json.decoder.JSONDecodeError:
         pass
     return
-    # ORIGINAL method: useful for other managers
-    # try:
-    #     f=open("tableCatalog.txt",'r')
-    #     tablesBlockList=f.read().split()
-    #     f.close()
-    # except IOError:
-    #     pass
-    # try:
-    #     f=open("indexCatalog.txt",'r')
-    #     indicesBlockList=f.read().split()
-    #     f.close()
-    # except IOError:
-    #     pass
-    return
 def closeCatalog():
     # from tablesInfo(dict) to json
     with open("tableCatalog.txt",'w') as outfile:
         json.dump(tablesInfo,outfile)
     with open("indexCatalog.txt",'w') as outfile:
         json.dump(indicesInfo,outfile)
-    # for key,value in dict.items(tablesInfo):
-    #     No,numOfColumns,primaryKey=value[0:3]
-    #     tableName=key
-    #     fields=[]
-    #     for key2,value2 in dict.items(value[3]):
-    #         fields+=[key2,str(value2[0]),str(value2[1],str(value2[2]))]
-    #     tablesBlockList+=([str(No),str(True),tableName,str(numOfColumns),primaryKey]+fields)
-    # f=open("tableCatalog.txt",'w')
-    # f.write(' '.join(tablesBlockList))
-    # f.close()
-    # for key,value in dict.items(tablesInfo):
-    #     No=value[0]
-    #     indexName=key
-    #     tableName,columnName=value[1:3]
-    #     validation='True'
-    #     indicesBlockList+=([str(No),validation,indexName,tableName,columnName])
-    # f=open("indexCatalog.txt",'w')
-    # f.write(' '.join(indicesBlockList))
-    # f.close()
-    # return
-def tableListToDictValue(data):
-    """
-    given a data[] of one table, return a formatted tableInfoValue
-    """
-    No=int(data[0])
-    validation=bool(data[1])
-    numOfColumns=int(data[3])
-    if not validation:
-        return None
-    tableInfoValue=[No,numOfColumns,data[4]]
-    j=0
-    column={}
-    while j<numOfColumns:
-        j+=1
-        column[data[1+4*j]]=[int(data[4*j+2]),bool(data[4*j+3]),bool(data[4*j+4])]
-    tableInfoValue.append(column)
-    return tableInfoValue
-def indexListToDictValue(data):
-    validation=bool(data[1])
-    if not validation:
-        return None
-    else:
-        return [int(data[0]),data[3],data[4]]#No,tableName,columnName
-def tableDictToStr(tableName,tableInfoValue):
-    numOfColumns=tableInfoValue[1]
-    table1=[str(tableInfoValue[0]),'1',tableName,str(numOfColumns),tableInfoValue[2]]
-    table2=[]
-    for key,value in dict.items(tableInfoValue[3]):
-        table2+=([key,str(value[0]),str(value[1]),str(value[2])])
-    return table1+table2
 def extend(tableName,primaryKey,fields):
     value={}
     value['primaryKey']=primaryKey
@@ -127,38 +64,7 @@ def extend(tableName,primaryKey,fields):
         })
     value['size']=size
     return value
-# def convertIn(fields):
-#     myFields={}
-#     for item in fields:
-#         value=[-1,True,False]
-#         if(item['type']=='float'):
-#             value[0]=0
-#         elif(item['type']=='char'):
-#             value[0]=item['typeParam']['maxLength']
-#         value[1]=item['unique']
-#         myFields[item['name']]=value
-#     return myFields
-# def convertOut(tableName, primaryKey, fields):
-#     newFields=[]
-#     for key,value in dict.items(fields):
-#         temp={}
-#         temp['name']=key
-#         if(value[0]==-1):
-#             temp['type']='int'
-#             temp['typeParam']={'maxLength':None}
-#         elif(value[0]==0):
-#             temp['type']='float'
-#             temp['typeParam']={'maxLength':None}
-#         else:
-#             temp['type']='char'
-#             temp['typeParam']={'maxLength':value[0]}
-#         temp['unique']=value[1]
-#         newFields.append(temp)
-#     return {
-#     'tableName':tableName,
-#     'fields':newFields,
-#     'primaryKey':primaryKey
-#     }
+
 def createTable(tableName,primaryKey,fields):
     """
     :param tableName:
@@ -173,14 +79,13 @@ def createTable(tableName,primaryKey,fields):
         unique key,
         the name of column that has index & indexName
     """
-    global numOfTables,tablesBlockList
+    global tablesBlockList
     myFields=extend(tableName,primaryKey,fields)
     # add to dict
     # dict merge
     # for key in myFields:
     #     myFields[key].append(False)
     tablesInfo[tableName]=myFields
-    numOfTables+=1
     # add to file
     # NO need anymore
     # tablesBlockList+=tableDictToStr(tableName,tablesInfo[tableName])
@@ -194,18 +99,32 @@ def dropTable(tableName):
     delete all the record of this table
     """
     # delete all the index
+    """
     for columnName, columnInfo in dict.items(tablesInfo[tableName]['fields']):
         indexName=columnInfo['index']
         if(indexName is not None):
-            dropIndexRecord(indexName)
+            indexManager.dropIndex(indexName)
+            dropIndex(indexName)    
+    """
+
     # delete table
     tablesInfo.pop(tableName)
     return True
 def findTable(tableName):
     """
     :param tableName:
-    :return: {tableName:xxx,No:xxx,numOfColumns:xxx,etc}
-
+    :return:
+    {
+'primaryKey':'no',
+'size'*: 21,
+'fields'**:[{
+'name':'student_name',
+'type':'char' | 'int' | 'float',
+'typeParam':None|8,
+'unique':True|False,
+'index'*:'index_on_student_name' | None
+}]
+}
     give tableName, return the information of the table
     """
     if(tableName in tablesInfo):
@@ -215,35 +134,32 @@ def findTable(tableName):
     else:
         return None
     return tablesInfo[tableName]
-def exist(tableName):
+def existTable(tableName):
     return tableName in tablesInfo
-def valueValidation(tableName,row):
-    """
-    check whether this row is valid for this table
-    """
+def existIndex(indexName):
+    return indexName in indicesInfo
 def getIndexName(tableName,columnNo):
     """
     give tableName&columnName, return indexName if there is index(else return '')
     """
-    for key,value in indicesInfo:
-        if value[0]==tableName and value[1]==columnNo
-        return indexName
+    for key,value in dict.items(indicesInfo):
+        if value[0]==tableName and value[1]==columnNo:
+            return key
     return None
 def getTableAndColumnName(indexName):
     """
     give indexName, return [tableName,columnName]
     """
     return (indicesInfo[indexName])
-def addIndexRecord(indexName,tableName, columnNo):
+def createIndex(indexName, tableName, columnNo):
     # add to dict
     global numOfIndices,indicesBlockList
     indicesInfo[indexName]=[tableName,columnNo]
     # add to list
-    numOfIndices+=1
     # update tablesInfo
     tablesInfo[tableName]['fields'][columnNo]['index']=indexName
     return True
-def dropIndexRecord(indexName):
+def dropIndex(indexName):
     # pop in indicesInfo
     tableName,columnName=getTableAndColumnName(indexName)
     indicesInfo.pop(indexName)
@@ -270,22 +186,7 @@ def getIndexList(tableName):
             indexList.append([key]+value)
     return indexList
 # DEBUG
-tablesBlockList=[]#blocks of str type
-tablesInfo={}#{tableName:[No,numOfColumns,primaryKey,{columnName:[type,unique,index]}]}
-indicesBlockList=[]
-indicesInfo={}#{indexName:[No, tableName,columnName]}
-numOfTables=0
-numOfIndices=0
-"""
-file format of recordCatalog.txt:
-(totalLength:5+4*(numOfColumns))
-[0]:No.
-[1]:bool validation,# set when deleted
-[2]:str tableName,
-[3]:int numOfColumns,
-[4]:str primaryKey;
-[5+4*i]str columnName+type+unique?+index?[numOfColumns],
-"""
+
 #initialize tablesBlockList
 openCatalog()
 # ORIGINAL method (useful in other managers)
@@ -333,11 +234,14 @@ def testCreateTable():
      ]
     createTable(tableName,primaryKey,fields)
 def testCreateIndex():
-    addIndexRecord('idx_student','student',0)
-    addIndexRecord('idx_age','student',1)
+    createIndex('idx_student', 'student', 0)
+    createIndex('idx_age', 'student', 1)
 if __name__=='__main__':
+    print(tablesInfo)
+    print(indicesInfo)
     testCreateTable()
     testCreateIndex()
+    print(tablesInfo)
     print(indicesInfo)
     # dropTable('student')
     closeCatalog()
