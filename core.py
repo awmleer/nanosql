@@ -21,7 +21,7 @@ def execute(command):
         executeCreateTable(queryData['data'])
         return {
             'status': 'success',
-            'payload': 'Table'+queryData['data']['tableName']+' successfully created.'
+            'payload': 'Table '+queryData['data']['tableName']+' was successfully created.'
         }
     if queryData['operation']=='insert':
         executeInsert(queryData['data'])
@@ -33,6 +33,12 @@ def execute(command):
         return {
             'status': 'success',
             'payload': executeSelect(queryData['data'])
+        }
+    if queryData['operation']=='createIndex':
+        executeCreateIndex(queryData['data'])
+        return {
+            'status': 'success',
+            'payload': 'Index '+queryData['data']['indexName']+' was successfully created.'
         }
     return queryData
 
@@ -69,6 +75,16 @@ def executeSelect(data):
         'body':recordManager.select(data['from'],data['fields'],data['where'])
     }
 
+
+def executeCreateIndex(data):
+    fields=catalogManager.getFieldsList(data['tableName'])
+    count=0
+    for field in fields:
+        if field['name']==data['fieldName']:
+            break
+        count+=1
+    catalogManager.createIndex(data['indexName'],data['tableName'],count)
+    indexManager.createIndex(data['indexName'],data['tableName'],count)
 
 
 
