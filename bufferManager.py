@@ -73,7 +73,8 @@ def write(filePath,blockPosition,data,cache=False):
 
 def delete(filePath):
     save(filePath)
-    del bufferList[filePath]
+    if filePath in bufferList:
+        del bufferList[filePath]
     os.remove(filePath)
 
 

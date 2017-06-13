@@ -40,7 +40,19 @@ def execute(command):
             'status': 'success',
             'payload': 'Index '+queryData['data']['indexName']+' was successfully created.'
         }
-    return queryData
+    if queryData['operation']=='dropIndex':
+        executeDropIndex(queryData['data'])
+        return {
+            'status': 'success',
+            'payload': 'Index ' + queryData['data']['indexName'] + ' was successfully removed.'
+        }
+    if queryData['operation']=='dropTable':
+        executeDropTable(queryData['data'])
+        return {
+            'status': 'success',
+            'payload': 'Table ' + queryData['data']['tableName'] + ' was successfully removed.'
+        }
+    return queryData  # TODO just for DEBUG
 
 
 def executeCreateTable(data):
@@ -86,6 +98,19 @@ def executeCreateIndex(data):
     catalogManager.createIndex(data['indexName'],data['tableName'],count)
     indexManager.createIndex(data['indexName'],data['tableName'],count)
 
+
+def executeDropIndex(data):
+    indexManager.dropIndex(data['indexName'])
+    catalogManager.dropIndex(data['indexName'])
+
+
+def executeDropTable(data):
+    indices=catalogManager.getIndexList(data['tableName'])
+    for index in indices:
+        indexManager.dropIndex(index[0])
+        catalogManager.dropIndex(index[0])
+    recordManager.dropTable(data['tableName'])
+    catalogManager.dropTable(data['tableName'])
 
 
 def quit():
