@@ -10,26 +10,34 @@ project when select using index
 """
 ORDER=4
 forest={}
+
+
 def openIndices():
     global forest
     for key in (catalogManager.indicesInfo):# for each indexName
         with open(getIndexFileName(key),'rb') as fp:
          try:
-	         newList=(pickle.load(fp))
-	         forest[key]=BPlusTree.bulkload(newList,ORDER)
+             newList=(pickle.load(fp))
+             forest[key]=BPlusTree.bulkload(newList,ORDER)
          except EOFError:
-	         forest[key]=BPlusTree(ORDER)
+             forest[key]=BPlusTree(ORDER)
+
+
 def closeIndices():
     # save forest to file
     for key,value in dict.items(forest):
         with open(getIndexFileName(key),'wb') as fp:
             pickle.dump(value.items(),fp)
+
+
 def insertIndex(indexName,value,no):
-	"""
-	the type must be correct
-	"""
-	forest[indexName].insert(value,no)
-	return
+    """
+    the type must be correct
+    """
+    forest[indexName].insert(value,no)
+    return
+
+
 def createIndex(indexName, tableName, columnName):
     global forest
     """
@@ -39,6 +47,8 @@ def createIndex(indexName, tableName, columnName):
     # establish B+Tree in Memory
     forest[indexName]=BPlusTree.bulkload(recordManager.selectWithNo(tableName,columnName),ORDER)
     return True
+
+
 def select(indexName,fields,value):
     tableName,columnNo=catalogManager.getTableAndColumnName(indexName)
     # single value
@@ -72,6 +82,8 @@ def select(indexName,fields,value):
                 newRecord.append(oneRecord[No])
         # append
         return [newRecord]
+
+
 def dropIndex(indexName):
     """
     delete an index
@@ -80,6 +92,8 @@ def dropIndex(indexName):
     forest.pop(indexName)
     os.remove(getIndexFileName(indexName))
     return True
+
+
 def NoToBlockNoAndPosition(tableName,No):
     tableSize = catalogManager.getTableSize(tableName)
     BLOCK_SIZE = bufferManager.BLOCK_SIZE
@@ -90,22 +104,36 @@ def NoToBlockNoAndPosition(tableName,No):
     #     a+=1
     #     b=0
     return (a,b)
+
+
 def getIndexFileName(indexName):
     return ''.join(['index_',indexName,'.db'])
+
+
 def getTableFileName(tableName):
     return ''.join([tableName,'.db'])
+
+
 def testCreateIndex():
     createIndex('idx_student','student','no')
     createIndex('idx_age','student','age')
+
+
 def testCloseIndex():
     closeIndices()
+
+
 def testSelect():
     print(select('idx_age',91))
+
+
 def testDropIndex():
     dropIndex('idx_age')# must be accompanied with drop catalog!!!
+
+
 def showAllIndex():
-	for key,value in dict.items(forest):
-		print(key,": ",value.items())
+    for key,value in dict.items(forest):
+        print(key,": ",value.items())
 openIndices()
 if __name__=='__main__':
     # testCreateIndex()# seems work fine

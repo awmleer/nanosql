@@ -29,6 +29,11 @@ def execute(command):
             'status': 'success',
             'payload': 'Successfully inserted a record into table '+queryData['data']['tableName']
         }
+    if queryData['operation']=='select':
+        return {
+            'status': 'success',
+            'payload': executeSelect(queryData['data'])
+        }
     return queryData
 
 
@@ -54,6 +59,15 @@ def executeCreateTable(data):
 def executeInsert(data):
     recordManager.insert(data['tableName'],data['values'])
 
+
+def executeSelect(data):
+    head=[]
+    for field in catalogManager.getFieldsList(data['from']):
+        head.append(field['name'])
+    return {
+        'head':head,
+        'body':recordManager.select(data['from'],data['fields'],data['where'])
+    }
 
 
 

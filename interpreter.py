@@ -164,6 +164,7 @@ def parseWheres(whereString):
 
 def parseSelectStatement(command):
     # command=removeFrontSpaces(command)
+    command=re.sub(' *;$','',command)
     strings=re.split(' from ',command)
     fieldString=strings[0]
     strings=re.split(' where ',strings[1])

@@ -26,6 +26,8 @@ tablesInfo[tableName]={
 """
 tablesInfo={}
 indicesInfo={}#{indexName:[ tableName,columnNo]}
+
+
 def openCatalog():
     global tablesInfo,indicesInfo
     # simple method from json file to dict
@@ -39,12 +41,16 @@ def openCatalog():
     except json.decoder.JSONDecodeError:
         pass
     return
+
+
 def closeCatalog():
     # from tablesInfo(dict) to json
     with open("tableCatalog.db",'w') as outfile:
         json.dump(tablesInfo,outfile)
     with open("indexCatalog.db",'w') as outfile:
         json.dump(indicesInfo,outfile)
+
+
 def extend(tableName,primaryKey,fields):
     value={}
     value['primaryKey']=primaryKey
@@ -64,6 +70,8 @@ def extend(tableName,primaryKey,fields):
         })
     value['size']=size
     return value
+
+
 
 def createTable(tableName,primaryKey,fields):
     """
@@ -91,6 +99,8 @@ def createTable(tableName,primaryKey,fields):
     # tablesBlockList+=tableDictToStr(tableName,tablesInfo[tableName])
     # write list
     return True
+
+
 def dropTable(tableName):
     """
     :param tableName:
@@ -110,6 +120,8 @@ def dropTable(tableName):
     # delete table
     tablesInfo.pop(tableName)
     return True
+
+
 def findTable(tableName):
     """
     :param tableName:
@@ -132,10 +144,16 @@ def findTable(tableName):
     else:
         return None
 
+
+
 def existTable(tableName):
     return tableName in tablesInfo
+
+
 def existIndex(indexName):
     return indexName in indicesInfo
+
+
 def getIndexName(tableName,columnNo):
     """
     give tableName&columnName, return indexName if there is index(else return '')
@@ -144,11 +162,15 @@ def getIndexName(tableName,columnNo):
         if value[0]==tableName and value[1]==columnNo:
             return key
     return None
+
+
 def getTableAndColumnName(indexName):
     """
     give indexName, return [tableName,columnName]
     """
     return (indicesInfo[indexName])
+
+
 def createIndex(indexName, tableName, columnNo):
     # add to dict
     global numOfIndices,indicesBlockList
@@ -157,6 +179,8 @@ def createIndex(indexName, tableName, columnNo):
     # update tablesInfo
     tablesInfo[tableName]['fields'][columnNo]['index']=indexName
     return True
+
+
 def dropIndex(indexName):
     # pop in indicesInfo
     tableName,columnName=getTableAndColumnName(indexName)
@@ -164,13 +188,21 @@ def dropIndex(indexName):
     # reset None in tablesInfo
     tablesInfo[tableName]['fields'][columnName]['index']=None
     return True
+
+
 def getFieldsList(tableName):
     return tablesInfo[tableName]['fields']
+
+
 def getTableSize(tableName):
     # return the size (length) of one record
     return tablesInfo[tableName]['size']
+
+
 def getTableInfo(tableName):
     return tablesInfo[tableName]
+
+
 def getIndexList(tableName):
     indexList=[]
     for key,value in dict.items(indicesInfo):
@@ -216,6 +248,8 @@ openCatalog()
 #         numOfIndices+=1
 # tablesBlockList=[]# can we put this line after we read it to dict in __init__()????? (save memory)
 # indicesBlockList=[]# can we put this line after we read it to dict in __init__()????? (save memory)
+
+
 def testCreateTable():
     tableName='student'
     primaryKey='no'
@@ -225,6 +259,8 @@ def testCreateTable():
      {'name': 'grade', 'type': 'float', 'unique': False, 'typeParam': None}
      ]
     createTable(tableName,primaryKey,fields)
+
+
 def testCreateIndex():
     createIndex('idx_student', 'student', 0)
     createIndex('idx_age', 'student', 1)

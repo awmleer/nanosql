@@ -21,10 +21,14 @@ todo:
 delete using index
 """
 
+
+
 def strToBytes(string,size):
     by = str.encode(string)
     by += b"\x00" * (size - len(by))
     return by
+
+
 def pack(tableName,recordList, fieldsList):
     i=0
     # add No at first, add validation at second
@@ -40,6 +44,8 @@ def pack(tableName,recordList, fieldsList):
         i+=1
 
     return count,b''.join(bytesList)
+
+
 def unpack(bytesRecord,fieldsList):
     i=0
     recordList=[]
@@ -61,6 +67,8 @@ def unpack(bytesRecord,fieldsList):
             recordList.append(string)
             i+=(strLength)
     return recordList
+
+
 def unpackWithNo(bytesRecord,fieldsList):
     i=0
     recordList=[]
@@ -83,6 +91,8 @@ def unpackWithNo(bytesRecord,fieldsList):
             recordList.append(string)
             i+=(strLength)
     return recordList
+
+
 def countRecord(tableName):
     """
     return the total Record of this table (including deleted )
@@ -95,6 +105,8 @@ def countRecord(tableName):
     count=(blockCount-1)*math.floor(bufferManager.BLOCK_SIZE/size)
     lastBlock=bufferManager.read(fileName,blockCount-1,cache=True)
     return count+math.ceil(len(lastBlock)/size)
+
+
 def createTable(tableName):
     #find whether exist????
     if catalogManager.existTable(tableName):
@@ -102,9 +114,13 @@ def createTable(tableName):
     fileName=getTableFileName(tableName)
     bufferManager.write(fileName,0,b'',cache=True)
     return {  'status':'success','payload': ''}
+
+
 def dropTable(tableName):
     bufferManager.delete(getTableFileName(tableName))
     return True
+
+
 def insert(tableName, recordList):
     fileName=getTableFileName(tableName)
     if not catalogManager.existTable(tableName):
@@ -157,6 +173,8 @@ def insert(tableName, recordList):
             key=float(key)
         indexManager.insertIndex(indexName,key,no)
     return {  'status':'success','payload': ''}
+
+
 def delete(tableName,where):
     # get each rows
     # satisfy conditions?
@@ -191,6 +209,8 @@ def delete(tableName,where):
                 count+=1
         bufferManager.write(fileName,blockNo,bytes(ba),cache=True)
     return {'status': 'success', 'payload': count}
+
+
 def fieldsNameTofieldsNo(tableName,fieldName):
     i=0
     for field in catalogManager.getFieldsList(tableName):
@@ -199,6 +219,8 @@ def fieldsNameTofieldsNo(tableName,fieldName):
         else:
             i+=1
     return None
+
+
 def convertInWhere(tableName,where):
     for condition in where:
         condition['field']=fieldsNameTofieldsNo(tableName,condition['field'])
@@ -207,6 +229,8 @@ def convertInWhere(tableName,where):
         elif(condition['operand']=='='):
             condition['operand']='=='
     return where
+
+
 def select(tableName,fields,where):
     """
     select and project
@@ -266,7 +290,10 @@ def select(tableName,fields,where):
                         newRecord.append(oneRecord[No])
                 #append
                 recordList.append(newRecord)
+    print(recordList)
     return recordList
+
+
 def selectWithNo(tableName,columnName):
     fileName=getTableFileName(tableName)
     blockCount=bufferManager.blockCount(fileName)
@@ -285,21 +312,31 @@ def selectWithNo(tableName,columnName):
             recordList.append([oneRecord[fieldNo+1],oneRecord[0]])# key and value
     recordList=sorted(recordList,key=lambda record:record[0])
     return recordList
+
+
 def getTableFileName(tableName):
     return ''.join([tableName,'.db'])
+
+
 def testInsert():
     myRange=100
     for i in range(myRange):
         print(insert('student',['{:05d}'.format(i),'{:05d}'.format(myRange-i),'{:05.1f}'.format(i/2)]))
+
+
 def testSelect():
     print(select('student',['*'],[
     {'field':'no','operand':'=','value':'00010'}
     ]))
+
+
 def testDelete():
     delete('student',[
     # {'field':'age','operand':'=','value':91}
         ])
     # delete('student',[])
+
+
 def testInsertAdditional():
     insert('student',['0014','91','104.0'])
 
