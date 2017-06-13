@@ -286,7 +286,7 @@ def selectWithNo(tableName,columnName):
     recordList=sorted(recordList,key=lambda record:record[0])
     return recordList
 def getTableFileName(tableName):
-    return ''.join([tableName,'.txt'])
+    return ''.join([tableName,'.db'])
 def testInsert():
     myRange=100
     for i in range(myRange):

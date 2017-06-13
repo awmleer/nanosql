@@ -1,1 +1,0 @@
-{"idx_student": ["student", 0], "idx_age": ["student", 1]}

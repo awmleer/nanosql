@@ -91,9 +91,9 @@ def NoToBlockNoAndPosition(tableName,No):
     #     b=0
     return (a,b)
 def getIndexFileName(indexName):
-    return ''.join(['index_',indexName,'.txt'])
+    return ''.join(['index_',indexName,'.db'])
 def getTableFileName(tableName):
-    return ''.join([tableName,'.txt'])
+    return ''.join([tableName,'.db'])
 def testCreateIndex():
     createIndex('idx_student','student','no')
     createIndex('idx_age','student','age')

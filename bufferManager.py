@@ -106,16 +106,16 @@ def saveAll():
 
 # just for DEBUG
 if __name__=='__main__':
-    # print(blockCount('test.txt'))
-    # write('test.txt',2,b'lorem',True)
-    print(blockCount('test.txt'))
+    # print(blockCount('test.db'))
+    # write('test.db',2,b'lorem',True)
+    print(blockCount('test.db'))
     # saveAll()
-    # read('test.txt',1)
-    # f=openFile('test.txt')
+    # read('test.db',1)
+    # f=openFile('test.db')
     # f.seek(100,io.SEEK_END)
     # print(f.read())
     # print(f.tell())
-    # write('test.txt',0,b'awmleer')
+    # write('test.db',0,b'awmleer')
     closeAllFiles()
 
 

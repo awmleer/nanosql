@@ -30,9 +30,9 @@ def openCatalog():
     global tablesInfo,indicesInfo
     # simple method from json file to dict
     try:
-        with open('tableCatalog.txt','r') as infile:
+        with open('tableCatalog.db','r') as infile:
             tablesInfo=json.load(infile)
-        with open('indexCatalog.txt','r') as infile:
+        with open('indexCatalog.db','r') as infile:
             indicesInfo=json.load(infile)
     except IOError:
         pass
@@ -41,9 +41,9 @@ def openCatalog():
     return
 def closeCatalog():
     # from tablesInfo(dict) to json
-    with open("tableCatalog.txt",'w') as outfile:
+    with open("tableCatalog.db",'w') as outfile:
         json.dump(tablesInfo,outfile)
-    with open("indexCatalog.txt",'w') as outfile:
+    with open("indexCatalog.db",'w') as outfile:
         json.dump(indicesInfo,outfile)
 def extend(tableName,primaryKey,fields):
     value={}
@@ -196,7 +196,7 @@ openCatalog()
 #         numOfTables+=1
 # # initialize indicesBlockList
 # """
-# file format of indexCatalog.txt:
+# file format of indexCatalog.db:
 # [0]:int No,
 # [1]:bool validation,
 # [2]:str indexName,
