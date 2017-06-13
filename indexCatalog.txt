@@ -1,1 +1,1 @@
-{"index_sno": {"columnName": "sno", "tableName": "student"}}
+{"idx_student": ["student", 0], "idx_age": ["student", 1]}

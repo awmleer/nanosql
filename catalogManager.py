@@ -128,12 +128,10 @@ def findTable(tableName):
     give tableName, return the information of the table
     """
     if(tableName in tablesInfo):
-        infoList=tablesInfo[tableName]
-        return {'tableName':tableName,'No':infoList[0],'numOfColumns':infoList[1],\
-        'column':infoList[3],'primaryKey':infoList[2]}
+        return tablesInfo[tableName]
     else:
         return None
-    return tablesInfo[tableName]
+
 def existTable(tableName):
     return tableName in tablesInfo
 def existIndex(indexName):
@@ -173,12 +171,6 @@ def getTableSize(tableName):
     return tablesInfo[tableName]['size']
 def getTableInfo(tableName):
     return tablesInfo[tableName]
-def getTableSize(tableName):
-    """
-    :param tableName:
-    :return: the number of bytes of one row of record
-    """
-    return tablesInfo[tableName]['size']
 def getIndexList(tableName):
     indexList=[]
     for key,value in dict.items(indicesInfo):

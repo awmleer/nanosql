@@ -1,0 +1,1 @@
+{"student": {"size": 21, "primaryKey": "no", "fields": [{"typeParam": 8, "name": "no", "index": "idx_student", "unique": true, "type": "char"}, {"typeParam": null, "name": "age", "index": "idx_age", "unique": false, "type": "int"}, {"typeParam": null, "name": "grade", "index": null, "unique": false, "type": "float"}]}}
