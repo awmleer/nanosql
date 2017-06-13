@@ -8,15 +8,7 @@ def execute(command):
             'status': 'error',
             'payload': 'Unknown SQL statement'
         }
-    """
-    DROP TABLE:
-        - drop index
-        - drop table
-    CREATE TABLE:
-        - create table
-        - create index
-    
-    """
+
     if queryData['operation']=='createTable':
         executeCreateTable(queryData['data'])
         return {
@@ -34,6 +26,8 @@ def execute(command):
             'status': 'success',
             'payload': executeSelect(queryData['data'])
         }
+    if queryData['operation']=='delete':
+        executeDelete(queryData['data'])
     if queryData['operation']=='createIndex':
         executeCreateIndex(queryData['data'])
         return {
@@ -55,6 +49,9 @@ def execute(command):
     return queryData  # TODO just for DEBUG
 
 
+
+#TODO check the execute return status
+
 def executeCreateTable(data):
     fields = data['fields']
     catalogManager.createTable(data['tableName'], data['primaryKey'], fields)
@@ -74,8 +71,10 @@ def executeCreateTable(data):
         columnCount+=1
 
 
+
 def executeInsert(data):
     recordManager.insert(data['tableName'],data['values'])
+
 
 
 def executeSelect(data):
@@ -86,6 +85,7 @@ def executeSelect(data):
         'head':head,
         'body':recordManager.select(data['from'],data['fields'],data['where'])
     }
+
 
 
 def executeCreateIndex(data):
@@ -99,9 +99,11 @@ def executeCreateIndex(data):
     indexManager.createIndex(data['indexName'],data['tableName'],count)
 
 
+
 def executeDropIndex(data):
     indexManager.dropIndex(data['indexName'])
     catalogManager.dropIndex(data['indexName'])
+
 
 
 def executeDropTable(data):
@@ -111,6 +113,12 @@ def executeDropTable(data):
         catalogManager.dropIndex(index[0])
     recordManager.dropTable(data['tableName'])
     catalogManager.dropTable(data['tableName'])
+
+
+
+def executeDelete(data):
+    recordManager.delete(data['from'],data['where'])
+
 
 
 def quit():

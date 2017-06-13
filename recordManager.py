@@ -123,6 +123,7 @@ def dropTable(tableName):
 
 def insert(tableName, recordList):
     fileName=getTableFileName(tableName)
+    print(catalogManager.existTable(tableName))
     if not catalogManager.existTable(tableName):
         return {  'status':'error','payload': 'table does not exist'}
     fieldsList=catalogManager.getFieldsList(tableName)
@@ -140,9 +141,6 @@ def insert(tableName, recordList):
         if (select('student',['*'],[{'field':field['name'],'operand':'=','value':value}])) !=[[]]:
             return {  'status':'error','payload': 'duplicated unique key'}
         i+=1
-    for item in recordList:
-        # find unique(include primaryKey)(traverse all column) duplicated?
-        pass
 
     no,bytesRecord=pack(tableName,recordList,fieldsList)
     # append the the last
