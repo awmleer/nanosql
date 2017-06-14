@@ -107,21 +107,20 @@ def countRecord(tableName):
     return count+math.ceil(len(lastBlock)/size)
 
 
-def createTable(tableName):
-    #find whether exist????
+def createTable(tableName):# GRF
     if catalogManager.existTable(tableName):
         return {  'status':'error','payload': 'table already exists'}
     fileName=getTableFileName(tableName)
     bufferManager.write(fileName,0,b'',cache=True)
-    return {  'status':'success','payload': ''}
+    return {  'status':'success','payload': None}
 
 
-def dropTable(tableName):
+def dropTable(tableName):# GRF
     bufferManager.delete(getTableFileName(tableName))
-    return True
+    return {  'status':'success','payload': None}
 
 
-def insert(tableName, recordList):
+def insert(tableName, recordList):# GRF
     fileName=getTableFileName(tableName)
     if not catalogManager.existTable(tableName):
         return {  'status':'error','payload': 'table does not exist'}
@@ -169,10 +168,10 @@ def insert(tableName, recordList):
         elif(fieldsList[columnNo]['type']=='float'):
             key=float(key)
         indexManager.insertIndex(indexName,key,no)
-    return {  'status':'success','payload': ''}
+    return {  'status':'success','payload': None}
 
 
-def delete(tableName,where):
+def delete(tableName,where):# GRF
     # get each rows
     # satisfy conditions?
     fileName=getTableFileName(tableName)
@@ -228,16 +227,16 @@ def convertInWhere(tableName,where):
     return where
 
 
-def select(tableName,fields,where):
+def select(tableName,fields,where):# GRF
     """
-    select and project
+    # select and project
     """
     # get each rows
     # satisfy conditions?
     # if we can select using index
-    # print('tableName: ',tableName)
-    # print('fields: ',fields)
-    # print('where: ',where)
+    print('tableName: ',tableName)
+    print('fields: ',fields)
+    print('where: ',where)
     fieldsList=catalogManager.getFieldsList(tableName)
     if(where==[]):
         # select all!!!!!
@@ -255,7 +254,7 @@ def select(tableName,fields,where):
                 value=float(value)
             return indexManager.select(indexName,fields,value)
     # else we use default select methods
-    # print("myWhere: ",myWhere)
+    print("myWhere: ",myWhere)
     fileName=getTableFileName(tableName)
     blockCount=bufferManager.blockCount(fileName)
     size=catalogManager.getTableSize(tableName)
@@ -274,10 +273,13 @@ def select(tableName,fields,where):
         rows=len(blockContent)//size
         for i in range(rows):
             oneRecord=unpack(blockContent[i*size:(i+1)*size],fieldsList)
+            print(oneRecord)
             if(oneRecord==[]):
                 continue
             flag=True
             for condition in myWhere:
+                print(condition)
+                print(oneRecord[condition['field']])
                 if not (eval(''.join([repr(oneRecord[condition['field']]),condition['operand'],repr(condition['value'])]))):
                     flag=False
             if flag:

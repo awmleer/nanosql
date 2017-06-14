@@ -73,7 +73,7 @@ def extend(tableName,primaryKey,fields):
 
 
 
-def createTable(tableName,primaryKey,fields):
+def createTable(tableName,primaryKey,fields):# GRF
     """
     :param tableName:
     :param primaryKey:
@@ -98,10 +98,10 @@ def createTable(tableName,primaryKey,fields):
     # NO need anymore
     # tablesBlockList+=tableDictToStr(tableName,tablesInfo[tableName])
     # write list
-    return True
+    return {  'status':'success','payload': []}
 
 
-def dropTable(tableName):
+def dropTable(tableName):# GRF
     """
     :param tableName:
     :return: successful or not
@@ -119,7 +119,7 @@ def dropTable(tableName):
 
     # delete table
     tablesInfo.pop(tableName)
-    return True
+    return {  'status':'success','payload': []}
 
 
 def findTable(tableName):
@@ -171,23 +171,23 @@ def getTableAndColumnName(indexName):
     return (indicesInfo[indexName])
 
 
-def createIndex(indexName, tableName, columnNo):
+def createIndex(indexName, tableName, columnNo):# GRF
     # add to dict
     global numOfIndices,indicesBlockList
     indicesInfo[indexName]=[tableName,columnNo]
     # add to list
     # update tablesInfo
     tablesInfo[tableName]['fields'][columnNo]['index']=indexName
-    return True
+    return {  'status':'success','payload': []}
 
 
-def dropIndex(indexName):
+def dropIndex(indexName):# GRF
     # pop in indicesInfo
     tableName,columnName=getTableAndColumnName(indexName)
     indicesInfo.pop(indexName)
     # reset None in tablesInfo
     tablesInfo[tableName]['fields'][columnName]['index']=None
-    return True
+    return {  'status':'success','payload': []}
 
 
 def getFieldsList(tableName):

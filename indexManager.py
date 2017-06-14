@@ -30,7 +30,7 @@ def closeIndices():
             pickle.dump(value.items(),fp)
 
 
-def insertIndex(indexName,value,no):
+def insertIndex(indexName,value,no):# GRF
     """
     the type must be correct
     """
@@ -38,7 +38,7 @@ def insertIndex(indexName,value,no):
     return
 
 
-def createIndex(indexName, tableName, columnName):
+def createIndex(indexName, tableName, columnName):# GRF
     global forest
     """
     create index on `key` in `tableName`
@@ -46,15 +46,15 @@ def createIndex(indexName, tableName, columnName):
     """
     # establish B+Tree in Memory
     forest[indexName]=BPlusTree.bulkload(recordManager.selectWithNo(tableName,columnName),ORDER)
-    return True
+    return return {  'status':'success','payload': None}
 
 
-def select(indexName,fields,value):
+def select(indexName,fields,value):# GRF
     tableName,columnNo=catalogManager.getTableAndColumnName(indexName)
     # single value
     No=forest[indexName][value]
     if No is None:
-        return []
+        return {  'status':'success','payload': []}
     else:
         blockNo,blockPosition=NoToBlockNoAndPosition(tableName,No)
         tableSize=catalogManager.getTableSize(tableName)
@@ -78,17 +78,17 @@ def select(indexName,fields,value):
                 # copy !!!
                 newRecord.append(oneRecord[No])
         # append
-        return [newRecord]
+        return {  'status':'success','payload': [newRecord]}
 
 
-def dropIndex(indexName):
+def dropIndex(indexName):# GRF
     """
     delete an index
     e.g. drop index stunameidx;
     """
     forest.pop(indexName)
     os.remove(getIndexFileName(indexName))
-    return True
+    return {  'status':'success','payload': []}
 
 
 def NoToBlockNoAndPosition(tableName,No):
