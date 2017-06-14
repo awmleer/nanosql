@@ -3,7 +3,7 @@ import bufferManager, catalogManager, recordManager, indexManager
 
 def execute(command):
     queryData=interpreter.interpret(command)
-    print(queryData)
+    # print(queryData)  # for DEBUG
     if queryData['operation']=='unknown':
         return {
             'status': 'error',

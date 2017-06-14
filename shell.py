@@ -58,6 +58,7 @@ def execFromFile(filePath):
                     print(execFilePath)
                     execFromFile(execFilePath)
                     command=''
+                    line = f.readline()
                     continue
                 try:
                     result = core.execute(command)
@@ -67,6 +68,8 @@ def execFromFile(filePath):
                     continue
                 # TODO whether to print result or not?
                 # outputResult(result)
+                if result['status'] == 'error':
+                    print(colored.red(result['payload']))
                 command = ''
             line = f.readline()
 
