@@ -66,8 +66,6 @@ def execFromFile(filePath):
                     logging.exception(e)
                     command = ''
                     continue
-                # TODO whether to print result or not?
-                # outputResult(result)
                 if result['status'] == 'error':
                     print(colored.red(result['payload']))
                 command = ''
@@ -123,7 +121,7 @@ def outputResult(result):
             if len(table['body'])>0:
                 printDivider(maxLen)
 
-
+            print(colored.green(bold( str(len(table['body']))+' rows, '+str(len(maxLen))+' columns in set.' )))
 
     elif result['status'] == 'error':
         print(colored.red(result['payload']))
