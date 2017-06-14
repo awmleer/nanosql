@@ -168,7 +168,7 @@ def executeSelect(data):
 
 
 def executeCreateIndex(data):
-    if not catalogManager.existIndex(data['indexName']):
+    if catalogManager.existIndex(data['indexName']):
         return {'status': 'error', 'payload': 'Index already exists'}
     no=catalogManager.getFieldNumber(data['tableName'],data['fieldName'])
     if no==-1:
