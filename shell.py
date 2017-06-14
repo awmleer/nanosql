@@ -26,8 +26,12 @@ def run():
             return
 
         if re.match('^execfile ',command):
+            timeStart = time.time()
             execFilePath=re.sub(' *;','',re.sub('^execfile +','',command))
+            print('Executing commands from '+colored.cyan(bold(execFilePath))+' ...')
             execFromFile(execFilePath)
+            timeElapsed = time.time() - timeStart
+            print(bold('Execution done in ' + str(round(timeElapsed, 5)) + ' seconds.'))
             command=''
             continue
 
@@ -61,7 +65,7 @@ def execFromFile(filePath):
                 if re.match('^execfile ', command):
                     execFilePath = re.sub(' *;', '', re.sub('^execfile +', '', command))
                     execFilePath = re.sub('/[^/]+$','/',filePath)+execFilePath
-                    print(execFilePath)
+                    print('Executing commands from ' + colored.cyan(bold(execFilePath)) + ' ...')
                     execFromFile(execFilePath)
                     command=''
                     line = f.readline()
