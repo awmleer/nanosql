@@ -10,22 +10,12 @@ def execute(command):
             'payload': 'Unknown SQL statement'
         }
 
-    if 'error' in queryData['data']:
+    if queryData['data'] is not None and 'error' in queryData['data']:
         return {
             'status': 'error',
             'payload': queryData['data']['error']
         }
 
-
-    if queryData['operation']=='createTable':
-        result=executeCreateTable(queryData['data'])
-        if result['status']=='success':
-            return {
-                'status': 'success',
-                'payload': 'Table '+queryData['data']['tableName']+' was successfully created.'
-            }
-        else:
-            return result
 
     if queryData['operation']=='insert':
         result=executeInsert(queryData['data'])
@@ -33,6 +23,16 @@ def execute(command):
             return {
                 'status': 'success',
                 'payload': 'Successfully inserted a record into table '+queryData['data']['tableName']
+            }
+        else:
+            return result
+
+    if queryData['operation']=='createTable':
+        result=executeCreateTable(queryData['data'])
+        if result['status']=='success':
+            return {
+                'status': 'success',
+                'payload': 'Table '+queryData['data']['tableName']+' was successfully created.'
             }
         else:
             return result
@@ -79,6 +79,9 @@ def execute(command):
             }
         else:
             return result
+
+    if queryData['operation']=='showTables':
+        return executeShowTables()
 
     return {
         'status':'error',
@@ -201,6 +204,20 @@ def executeDelete(data):
         return {'status': 'error', 'payload': 'Table '+data['tableName']+' does not exist'}
     return recordManager.delete(data['from'],data['where'])
 
+
+
+def executeShowTables():
+    tables=catalogManager.getTableNames()
+    body=[]
+    for table in tables:
+        body.append([table])
+    return {
+        'status': 'success',
+        'payload': {
+            'head':['Table Name'],
+            'body':body
+        }
+    }
 
 
 def quit():

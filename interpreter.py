@@ -39,6 +39,11 @@ def interpret(command):
             'operation': 'dropIndex',
             'data': parseDropIndexStatement(command)
         }
+    elif re.match('^show tables *; *',command):
+        return {
+            'operation': 'showTables',
+            'data': None
+        }
     else:
         return {
             'operation': 'unknown',
