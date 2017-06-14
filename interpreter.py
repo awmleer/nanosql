@@ -76,7 +76,7 @@ def parseCreateTableStatement(command):
             primaryKey=re.sub(
                 '\)$',
                 '',
-                re.sub('primary key \(', '', rawFieldString)
+                re.sub('primary key *\(', '', rawFieldString)
             )
             primaryKey=removeEndsSpaces(primaryKey)
             continue
