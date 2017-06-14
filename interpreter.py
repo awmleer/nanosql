@@ -154,10 +154,16 @@ def parseWheres(whereString):
         if operand=='':
             return "error" # TODO raise error
         operators=re.split(operand,rawWhere)
+        value=removeEndsSpaces(operators[1])
+        if value[-1]!='\'' and value[0]!='\'':
+            if '.' in value:
+                value=float(value)
+            else:
+                value=int(value)
         wheres.append({
             'operand':operand,
             'field':removeEndsSpaces(operators[0]),
-            'value':removeEndsSpaces(operators[1])
+            'value':value
         })
     return wheres
 
