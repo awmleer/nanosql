@@ -311,7 +311,7 @@ def selectWithNo(tableName,columnName):
 
 
 def getTableFileName(tableName):
-    return ''.join([tableName,'.db'])
+    return 'db/'+tableName+'.db'
 
 
 def testInsert():

@@ -109,7 +109,7 @@ def saveAll():
 if __name__=='__main__':
     # print(blockCount('test.db'))
     # write('test.db',2,b'lorem',True)
-    print(blockCount('test.db'))
+    print(blockCount('db/test.db'))
     # saveAll()
     # read('test.db',1)
     # f=openFile('test.db')

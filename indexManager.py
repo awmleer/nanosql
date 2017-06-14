@@ -107,11 +107,11 @@ def NoToBlockNoAndPosition(tableName,No):
 
 
 def getIndexFileName(indexName):
-    return ''.join(['index_',indexName,'.db'])
+    return 'db/'+'index_'+indexName+'.db'
 
 
 def getTableFileName(tableName):
-    return ''.join([tableName,'.db'])
+    return 'db/'+tableName+'.db'
 
 
 def testCreateIndex():
