@@ -54,17 +54,14 @@ def select(indexName,fields,value):
     # single value
     No=forest[indexName][value]
     if No is None:
-        return [[]]
+        return []
     else:
         blockNo,blockPosition=NoToBlockNoAndPosition(tableName,No)
         tableSize=catalogManager.getTableSize(tableName)
         fileName=getTableFileName(tableName)
         blockContent=bufferManager.read(fileName,blockNo,cache=True)
-        try:
-            oneRecord=recordManager.unpack(blockContent[blockPosition:blockPosition + tableSize],
+        oneRecord=recordManager.unpack(blockContent[blockPosition:blockPosition + tableSize],
                              catalogManager.getFieldsList(tableName))
-        except :
-            print(blockNo,blockPosition,": ",blockContent)
         # convert field
         myFields = []
         if (fields == ['*']):

@@ -137,7 +137,7 @@ def insert(tableName, recordList):
             value=float(recordList[i])
         else:
             value=str(recordList[i])
-        if (select(tableName,['*'],[{'field':field['name'],'operand':'=','value':value}])) !=[[]]:
+        if (select(tableName,['*'],[{'field':field['name'],'operand':'=','value':value}])) !=[]:
             return {  'status':'error','payload': 'duplicated unique key'}
         i+=1
 
@@ -235,6 +235,9 @@ def select(tableName,fields,where):
     # get each rows
     # satisfy conditions?
     # if we can select using index
+    # print('tableName: ',tableName)
+    # print('fields: ',fields)
+    # print('where: ',where)
     fieldsList=catalogManager.getFieldsList(tableName)
     if(where==[]):
         # select all!!!!!
@@ -252,6 +255,7 @@ def select(tableName,fields,where):
                 value=float(value)
             return indexManager.select(indexName,fields,value)
     # else we use default select methods
+    # print("myWhere: ",myWhere)
     fileName=getTableFileName(tableName)
     blockCount=bufferManager.blockCount(fileName)
     size=catalogManager.getTableSize(tableName)
