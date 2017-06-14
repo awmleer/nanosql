@@ -3,12 +3,14 @@ from sys import stdin
 import core
 import logging
 import re
+import time
+
 
 def run():
     print('Welcome to NanoSQL')
     command=''
     while True:
-        print(colored.green('> '), end='', flush=True)
+        print(colored.green(bold('> ')), end='', flush=True)
         line = stdin.readline()
         if len(line)<=1:  # if get an empty line
             continue
@@ -29,13 +31,16 @@ def run():
             command=''
             continue
 
+        timeStart=time.time()
         try:
             result=core.execute(command)
         except Exception as e:
             logging.exception(e)
             command = ''
             continue
+        timeElapsed=time.time()-timeStart
         outputResult(result)
+        print(bold('Execution done in '+str(round(timeElapsed,3))+'seconds.'))
         command=''
 
 
