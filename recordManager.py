@@ -299,12 +299,11 @@ def select(tableName,fields,where):# GRF
     }
 
 
-def selectWithNo(tableName,columnName):
+def selectWithNo(tableName,columnNo):
     fileName=getTableFileName(tableName)
     blockCount=bufferManager.blockCount(fileName)
     size=catalogManager.getTableSize(tableName)
     recordList=[]
-    fieldNo=fieldsNameTofieldsNo(tableName,columnName)
     for blockNo in range(blockCount):
         # this is a copy
         blockContent=bufferManager.read(fileName,blockNo,cache=True)
@@ -314,7 +313,7 @@ def selectWithNo(tableName,columnName):
             oneRecord=unpackWithNo(blockContent[i*size:(i+1)*size],catalogManager.getFieldsList(tableName))
             if(oneRecord==[]):
                 continue
-            recordList.append([oneRecord[fieldNo+1],oneRecord[0]])# key and value
+            recordList.append([oneRecord[columnNo+1],oneRecord[0]])# key and value
     recordList=sorted(recordList,key=lambda record:record[0])
     return recordList
 

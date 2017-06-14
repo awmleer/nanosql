@@ -32,8 +32,6 @@ def freeBuffer(filePath):
     if len(keys)==0: return
     i=random.randint(0,len(keys))
     del bufferList[filePath][keys[i]]
-
-
 def read(filePath,blockPosition,cache=False):
     if (filePath in bufferList) and (blockPosition in bufferList[filePath]):
         return bufferList[filePath][blockPosition]['data']

@@ -38,14 +38,14 @@ def insertIndex(indexName,value,no):# GRF
     return
 
 
-def createIndex(indexName, tableName, columnName):# GRF
+def createIndex(indexName, tableName, columnNo):# GRF
     global forest
     """
     create index on `key` in `tableName`
     e.g. create index stunameidx on student ( sname );
     """
     # establish B+Tree in Memory
-    forest[indexName]=BPlusTree.bulkload(recordManager.selectWithNo(tableName,columnName),ORDER)
+    forest[indexName]=BPlusTree.bulkload(recordManager.selectWithNo(tableName,columnNo),ORDER)
     return {  'status':'success','payload': None}
 
 
