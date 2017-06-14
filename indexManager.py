@@ -87,7 +87,10 @@ def dropIndex(indexName):# GRF
     e.g. drop index stunameidx;
     """
     forest.pop(indexName)
-    os.remove(getIndexFileName(indexName))
+    try:
+        os.remove(getIndexFileName(indexName))
+    except FileNotFoundError:
+        pass
     return {  'status':'success','payload': []}
 
 
@@ -96,7 +99,7 @@ def NoToBlockNoAndPosition(tableName,No):
     BLOCK_SIZE = bufferManager.BLOCK_SIZE
     capacityPerBlock=BLOCK_SIZE//tableSize
 
-    a,b=(No // (capacityPerBlock+1),(No  % capacityPerBlock)*tableSize )
+    a,b=(No // (capacityPerBlock),(No  % capacityPerBlock)*tableSize )
     # if (BLOCK_SIZE-b)<tableSize:
     #     a+=1
     #     b=0
