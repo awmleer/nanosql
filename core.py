@@ -88,6 +88,8 @@ def execute(command):
 
 
 def executeCreateTable(data):
+    if catalogManager.existTable(data['tableName']):
+        return {'status': 'error', 'payload': 'Table '+data['tableName']+' already exists'}
     fields = data['fields']
     result=recordManager.createTable(data['tableName'])
     if result['status']=='error':
@@ -121,15 +123,22 @@ def executeCreateTable(data):
 
 
 def executeInsert(data):
+    if not catalogManager.existTable(data['tableName']):
+        return {'status': 'error', 'payload': 'Table does not exist'}
     return recordManager.insert(data['tableName'],data['values'])
 
 
 
 def executeSelect(data):
+    if not catalogManager.existTable(data['from']):
+        return {'status': 'error', 'payload': 'Table does not exist'}
     head=[]
-    for field in catalogManager.getFieldsList(data['from']):
-        if field['name'] in data['fields'] or '*' in data['fields']:
+    fields=catalogManager.getFieldsList(data['from'])
+    for field in data['fields']:
+        if field['name'] in fields or '*' in data['fields']:
             head.append(field['name'])
+        else:
+            return {'status': 'error', 'payload': 'Field '+field['name']+' does not exist'}
     result=recordManager.select(data['from'],data['fields'],data['where'])
     if result['status']=='error':
         return result
@@ -144,20 +153,21 @@ def executeSelect(data):
 
 
 def executeCreateIndex(data):
-    fields=catalogManager.getFieldsList(data['tableName'])
-    count=0
-    for field in fields:
-        if field['name']==data['fieldName']:
-            break
-        count+=1
-    result=catalogManager.createIndex(data['indexName'],data['tableName'],count)
+    if not catalogManager.existIndex(data['indexName']):
+        return {'status': 'error', 'payload': 'Index already exists'}
+    no=catalogManager.getFieldNumber(data['tableName'],data['fieldName'])
+    if no==-1:
+        return {'status': 'error', 'payload': 'Field '+data['fieldName']+' does not exist'}
+    result=catalogManager.createIndex(data['indexName'],data['tableName'],no)
     if result['status']=='error':
         return result
-    return indexManager.createIndex(data['indexName'],data['tableName'],count)
+    return indexManager.createIndex(data['indexName'],data['tableName'],no)
 
 
 
 def executeDropIndex(data):
+    if not catalogManager.existIndex(data['indexName']):
+        return {'status': 'error', 'payload': 'Index does not exist'}
     result=indexManager.dropIndex(data['indexName'])
     if result['status']=='error':
         return result
@@ -166,6 +176,8 @@ def executeDropIndex(data):
 
 
 def executeDropTable(data):
+    if not catalogManager.existTable(data['tableName']):
+        return {'status': 'error', 'payload': 'Table does not exist'}
     indices=catalogManager.getIndexList(data['tableName'])
     for index in indices:
         result=indexManager.dropIndex(index[0])
@@ -182,6 +194,8 @@ def executeDropTable(data):
 
 
 def executeDelete(data):
+    if not catalogManager.existTable(data['from']):
+        return {'status': 'error', 'payload': 'Table does not exist'}
     return recordManager.delete(data['from'],data['where'])
 
 

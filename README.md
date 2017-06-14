@@ -6,6 +6,7 @@
 
 - [clint](https://github.com/kennethreitz/clint) 0.5.1
 - python 3.5.2
+- flask
 
 
 ### Sample SQLs
