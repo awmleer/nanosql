@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block nav_title %}
+    Library
+{% endblock %}
+
+{% block content %}
+    <div style="width: 100%;margin-top: 30px">
+        <form action="/execute/" method="post">
+            <input name="sql" class="form-control" type="text" placeholder="Please type your SQL here..." style="width: calc(100% - 300px);display: inline-block;">
+            <button type="submit" style="width: 200px;display: inline-block;" class="btn btn-danger">Run</button>
+        </form>
+    </div>
+    <div style="margin-top: 20px;margin-bottom: 20px">
+        Execution result for: <b>{{ sql }}</b>
+    </div>
+    {% if result.status=='success' %}
+        {% if result.type=='str' %}
+            <div>
+                {{ result.payload }}
+            </div>
+        {% endif %}
+        {% if result.type=='dict' %}
+            <table class="table table-striped">
+                <thead>
+                {% for col in result.payload.head %}
+                    <td>{{ col }}</td>
+                {% endfor %}
+                </thead>
+                <tbody>
+                {% for row in result.payload.body %}
+                    <tr>
+                        {% for col in row %}
+                            <td>{{ col }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-danger">
+            <div class="container">
+                <b>ERROR</b> {{ result.payload }}
+            </div>
+        </div>
+    {% endif %}
+
+{#    <div>{{ result }}</div>#}
+{% endblock %}
