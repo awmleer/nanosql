@@ -61,13 +61,13 @@ def executeCreateTable(data):
             field['unique']=True
     for field in fields:
         if field['unique']:
-            catalogManager.createIndex('autoIndex'+data['tableName'],data['tableName'],columnCount)
+            catalogManager.createIndex('autoIndex$'+data['tableName']+'$'+field['name'],data['tableName'],columnCount)
         columnCount+=1
     recordManager.createTable(data['tableName'])
     columnCount=0
     for field in fields:
         if field['unique']:
-            indexManager.createIndex('autoIndex'+data['tableName'],data['tableName'],columnCount)
+            indexManager.createIndex('autoIndex$'+data['tableName']+'$'+field['name'],data['tableName'],columnCount)
         columnCount+=1
 
 

@@ -288,7 +288,6 @@ def select(tableName,fields,where):
                         newRecord.append(oneRecord[No])
                 #append
                 recordList.append(newRecord)
-    print(recordList)
     return recordList
 
 

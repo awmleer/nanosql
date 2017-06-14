@@ -53,9 +53,80 @@ def run():
             logging.exception(e)
             command = ''
             continue
-        print(result)
+        outputResult(result)
         command=''
 
+
+
+def outputResult(result):
+    # print the result based on the status
+    if result['status'] == 'success':
+        if type(result['payload']) == str:
+            print(result['payload'])
+        elif type(result['payload']) == dict:
+            # calculate the max length of each column
+            maxLen=[]
+            table=result['payload']
+            for col in table['head']:
+                maxLen.append(len(str(col)))
+            for row in table['body']:
+                i=0
+                for col in row:
+                    if len(str(col))>maxLen[i]:
+                        maxLen[i]=len(str(col))
+                    i+=1
+
+            printDivider(maxLen)
+
+            print('|',end='',flush=True)
+            i=0
+            for col in table['head']:
+                print(' ', end='', flush=True)
+                print(bold(str(col)),end='',flush=True)
+                batchPrint(' ',maxLen[i]-len(str(col)))
+                print(' ', end='', flush=True)
+                print('|',end='',flush=True)
+                i+=1
+            print('')
+
+            printDivider(maxLen)
+
+            for row in table['body']:
+                print('|', end='', flush=True)
+                i=0
+                for col in row:
+                    print(' ', end='', flush=True)
+                    print(str(col), end='', flush=True)
+                    # print(bold(str(col)), end='', flush=True)
+                    batchPrint(' ', maxLen[i] - len(str(col)))
+                    print(' ', end='', flush=True)
+                    print('|', end='', flush=True)
+                    i += 1
+                print('')
+            if len(table['body'])>0:
+                printDivider(maxLen)
+
+
+
+    elif result['status'] == 'error':
+        print(colored.red(result['payload']))
+    else:
+        print(colored.red('An unknown error occurred when execute the command.'))
+
+
+def batchPrint(text,count):
+    for i in range(0, count):
+        print(text,end='',flush=True)
+
+def printDivider(maxLen):
+    print('+', end='', flush=True)
+    for length in maxLen:
+        batchPrint('-', length + 2)
+        print('+', end='', flush=True)
+    print('')
+
+def bold(text):
+    return '\033[1m'+text+'\033[0m'
 
 
 if __name__ == '__main__':
