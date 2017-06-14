@@ -123,7 +123,6 @@ def dropTable(tableName):
 
 def insert(tableName, recordList):
     fileName=getTableFileName(tableName)
-    print(catalogManager.existTable(tableName))
     if not catalogManager.existTable(tableName):
         return {  'status':'error','payload': 'table does not exist'}
     fieldsList=catalogManager.getFieldsList(tableName)

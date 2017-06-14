@@ -25,26 +25,8 @@ def run():
 
         if re.match('^execfile ',command):
             execFilePath=re.sub(' *;','',re.sub('^execfile +','',command))
+            execFromFile(execFilePath)
             command=''
-            with open(execFilePath,'r') as f:
-                line=f.readline()
-                while line:
-                    if line=='\n':
-                        line = f.readline()
-                        continue
-                    while line[-1] == ' ' or line[-1] == '\n':
-                        line = line[0:-1]
-                    command += line
-                    if line[-1] == ';':
-                        try:
-                            result = core.execute(command)
-                        except Exception as e:
-                            logging.exception(e)
-                            command = ''
-                            continue
-                        print(result)
-                        command=''
-                    line=f.readline()
             continue
 
         try:
@@ -55,6 +37,38 @@ def run():
             continue
         outputResult(result)
         command=''
+
+
+
+def execFromFile(filePath):
+    command = ''
+    with open(filePath, 'r') as f:
+        line = f.readline()
+        while line:
+            if line == '\n':
+                line = f.readline()
+                continue
+            while line[-1] == ' ' or line[-1] == '\n':
+                line = line[0:-1]
+            command += line
+            if line[-1] == ';':
+                if re.match('^execfile ', command):
+                    execFilePath = re.sub(' *;', '', re.sub('^execfile +', '', command))
+                    execFilePath = re.sub('/[^/]+$','/',filePath)+execFilePath
+                    print(execFilePath)
+                    execFromFile(execFilePath)
+                    command=''
+                    continue
+                try:
+                    result = core.execute(command)
+                except Exception as e:
+                    logging.exception(e)
+                    command = ''
+                    continue
+                # TODO whether to print result or not?
+                # outputResult(result)
+                command = ''
+            line = f.readline()
 
 
 

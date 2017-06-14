@@ -60,7 +60,7 @@ def removeEndsSpaces(text):
 
 
 def parseCreateTableStatement(command):
-    temp=re.split(' \(',command,1)
+    temp=re.split('\(',command,1)
     tableName= removeEndsSpaces(
         re.sub('create +table +','',temp[0])
     )
@@ -115,7 +115,7 @@ def parseCreateTableStatement(command):
 
 
 def parseInsert(command):
-    temp=re.split(' +values +',command)
+    temp=re.split(' +values *',command)
     tableName=re.sub(' *insert into *','',temp[0])
     valuesString=re.sub(
         ' *\) *; *','',

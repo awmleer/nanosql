@@ -10,6 +10,7 @@ def execute(command):
         }
 
     if queryData['operation']=='createTable':
+        print(queryData)
         executeCreateTable(queryData['data'])
         return {
             'status': 'success',
