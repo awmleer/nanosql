@@ -180,26 +180,24 @@ def parseWheres(whereString):
 
 
 def parseSelectStatement(command):
-    # command=removeFrontSpaces(command)
     command=re.sub(' *;$','',command)
+    searchResult = re.search(' +order by +(?P<field>\w+)', command)
+    if searchResult is None:
+        orderBy = None
+    else:
+        orderBy = searchResult.group('field')
+    command = re.sub(' +order by +(?P<field>\w+)', '', command)
+
+    searchResult = re.search(' +limit +(?P<number>\d+)', command)
+    if searchResult is None:
+        limit = None
+    else:
+        limit = int(searchResult.group('number'))
+    command = re.sub(' +limit +(?P<number>\d+)', '', command)
     strings=re.split(' from ',command)
     fieldString=strings[0]
     strings=re.split(' where ',strings[1])
     fromString=strings[0]
-
-    searchResult=re.search(' +order by +(?P<field>\w+)',strings[1])
-    if searchResult is None:
-        orderBy=None
-    else:
-        orderBy=searchResult.group('field')
-    strings[1]=re.sub(' +order by +(?P<field>\w+)','',strings[1])
-
-    searchResult = re.search(' +limit +(?P<number>\d+)', strings[1])
-    if searchResult is None:
-        limit=None
-    else:
-        limit=int(searchResult.group('number'))
-    strings[1]=re.sub(' +limit +(?P<number>\d+)','',strings[1])
 
     if len(strings)>1:
         whereString=strings[1]
