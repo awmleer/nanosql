@@ -39,8 +39,9 @@ def run():
             command = ''
             continue
         timeElapsed=time.time()-timeStart
+        # print(result)  # for DEBUG
         outputResult(result)
-        print(bold('Execution done in '+str(round(timeElapsed,3))+'seconds.'))
+        print(bold('Execution done in '+str(round(timeElapsed,5))+' seconds.'))
         command=''
 
 

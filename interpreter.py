@@ -156,8 +156,8 @@ def parseWheres(whereString):
         operators=re.split(operand,rawWhere)
         wheres.append({
             'operand':'=',
-            'operatorA':removeEndsSpaces(operators[0]),
-            'operatorB':removeEndsSpaces(operators[1])
+            'field':removeEndsSpaces(operators[0]),
+            'value':removeEndsSpaces(operators[1])
         })
     return wheres
 
