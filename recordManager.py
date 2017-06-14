@@ -137,7 +137,7 @@ def insert(tableName, recordList):
             value=float(recordList[i])
         else:
             value=str(recordList[i])
-        if (select('student',['*'],[{'field':field['name'],'operand':'=','value':value}])) !=[[]]:
+        if (select(tableName,['*'],[{'field':field['name'],'operand':'=','value':value}])) !=[[]]:
             return {  'status':'error','payload': 'duplicated unique key'}
         i+=1
 
