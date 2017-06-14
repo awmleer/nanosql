@@ -71,6 +71,8 @@ def select(indexName,fields,value):# GRF
                 myFields.append(recordManager.fieldsNameTofieldsNo(tableName, item))
         # project
         newRecord = []
+        if(oneRecord==[]):
+            return {'status': 'success', 'payload': []}
         if (myFields == ['*']):
             newRecord = oneRecord
         else:

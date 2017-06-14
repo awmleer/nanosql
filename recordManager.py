@@ -237,6 +237,8 @@ def select(tableName,fields,where):# GRF
     # print('tableName: ',tableName)
     # print('fields: ',fields)
     # print('where: ',where)
+    if not catalogManager.existTable(tableName):
+        return {  'status':'error','payload': 'table does not exist'}
     fieldsList=catalogManager.getFieldsList(tableName)
     if(where==[]):
         # select all!!!!!
