@@ -100,12 +100,16 @@ def parseCreateTableStatement(command):
         elif re.match('^float',temp[1]):
             field['type']='float'
         else:
-            return "error"  # TODO raise error: unknown field type: re.split(' +',temp[1])[0]
+            return {
+                'error':'Unknown field type: '+re.split(' +',temp[1])[0]
+            }
         if re.search(' unique$',rawFieldString):
             field['unique']=True
         fields.append(field)
     if not primaryKey:
-        return "error"  # TODO raise error: no primary key
+        return{
+            'error': 'No primary key'
+        }
     return {
         'tableName':tableName,
         'fields':fields,

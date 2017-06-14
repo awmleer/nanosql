@@ -77,7 +77,7 @@ def execFromFile(filePath):
                     command = ''
                     continue
                 if result['status'] == 'error':
-                    print(colored.red(result['payload']))
+                    print(colored.red(bold('ERROR')) + colored.red('->' + result['payload']))
                 command = ''
             line = f.readline()
 
@@ -134,7 +134,7 @@ def outputResult(result):
             print(colored.green(bold( str(len(table['body']))+' rows, '+str(len(maxLen))+' columns in set.' )))
 
     elif result['status'] == 'error':
-        print(colored.red(result['payload']))
+        print(colored.red(bold('ERROR')) + colored.red('->'+result['payload']))
     else:
         print(colored.red('An unknown error occurred when execute the command.'))
 

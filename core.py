@@ -3,11 +3,17 @@ import bufferManager, catalogManager, recordManager, indexManager
 
 def execute(command):
     queryData=interpreter.interpret(command)
-    # print(queryData)  # for DEBUG
+    print(queryData)  # for DEBUG
     if queryData['operation']=='unknown':
         return {
             'status': 'error',
             'payload': 'Unknown SQL statement'
+        }
+
+    if 'error' in queryData['data']:
+        return {
+            'status': 'error',
+            'payload': queryData['data']['error']
         }
 
     if queryData['operation']=='createTable':
