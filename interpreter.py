@@ -196,7 +196,7 @@ def parseSelectStatement(command):
 
     searchResult = re.search(' +limit +(?P<number>\d+)', strings[1])
     if searchResult is None:
-        limit=0
+        limit=None
     else:
         limit=int(searchResult.group('number'))
     strings[1]=re.sub(' +limit +(?P<number>\d+)','',strings[1])
