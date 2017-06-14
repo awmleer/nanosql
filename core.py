@@ -3,7 +3,7 @@ import bufferManager, catalogManager, recordManager, indexManager
 
 def execute(command):
     queryData=interpreter.interpret(command)
-    print(queryData)  # for DEBUG
+    # print(queryData)  # for DEBUG
     if queryData['operation']=='unknown':
         return {
             'status': 'error',
@@ -95,10 +95,11 @@ def executeCreateTable(data):
     result=catalogManager.createTable(data['tableName'], data['primaryKey'], fields)
     if result['status']=='error':
         return result
-    columnCount=0
     for field in fields:
         if field['name']==data['primaryKey']:  # auto set primary key to unique
             field['unique']=True
+            # catalogManager.createIndex('auto$' + data['tableName'] + '$' + field['name'], data['tableName'],columnCount)
+    columnCount=0
     for field in fields:
         if field['unique']:
             result=catalogManager.createIndex('auto$'+data['tableName']+'$'+field['name'],data['tableName'],columnCount)

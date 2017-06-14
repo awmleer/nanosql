@@ -7,7 +7,7 @@ import time
 
 
 def run():
-    print('Welcome to '+bold('NanoSQL')+' 🎉')
+    print('Welcome to '+bold('NanoSQL')+' 🍺')
     command=''
     while True:
         print(colored.green(bold('> ')), end='', flush=True)

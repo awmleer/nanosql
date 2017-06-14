@@ -234,9 +234,9 @@ def select(tableName,fields,where):# GRF
     # get each rows
     # satisfy conditions?
     # if we can select using index
-    print('tableName: ',tableName)
-    print('fields: ',fields)
-    print('where: ',where)
+    # print('tableName: ',tableName)
+    # print('fields: ',fields)
+    # print('where: ',where)
     fieldsList=catalogManager.getFieldsList(tableName)
     if(where==[]):
         # select all!!!!!

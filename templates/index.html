@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block nav_title %}
+    Library
+{% endblock %}
+
+{% block content %}
+    <div style="width: 100%;margin-top: 30px">
+        <form action="/execute/" method="post">
+            <input name="sql" class="form-control" type="text" placeholder="Please type your SQL here..." style="width: calc(100% - 300px);display: inline-block;">
+            <button type="submit" style="width: 200px;display: inline-block;" class="btn btn-danger">Run</button>
+        </form>
+    </div>
+{% endblock %}

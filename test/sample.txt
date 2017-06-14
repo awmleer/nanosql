@@ -27,8 +27,15 @@ select * from student2 where score>95 and id<=1080100100; --考察多条件and�
 —-9
 insert into student2 values(1080100245,'name245',100); --报primary key约束冲突（或报unique约束冲突）
 
+（为了演示index的作用，需要先drop掉在create table时自动建立的index）
+drop index auto$student2$name;
+
+然后测试不用index的查询速度
+select * from student2 where name='name245';
+
 —-10
 create index stuidx on student2 ( name ); --在name这个unique属性上创建index
+
 
 —-11
 select * from student2 where name='name245'; --此处需观察执行时间t2
@@ -40,13 +47,13 @@ insert into student2 values(1080197996,’name97996’,100); --考察在建立b+
 select * from student2 where name='name97996’; --此处需观察执行时间t3
 
 —-14
-delete from student2 where name='name97996’; --考察delete，同时考察b+树的delete
+delete from student2 where name='name97996’; --考察delete，同时考察b+树的delete #TODO
 
 —-15
-select * from student2 where name='name97996’;
+select * from student2 where name='name97996’; #TODO
 
 —-16
-insert into student2 values(1080197996,’name97996’,100);
+insert into student2 values(1080197996,’name97996’,100); #TODO
 
 —-17
 drop index stuidx; --考察drop index

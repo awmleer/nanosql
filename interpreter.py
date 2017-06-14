@@ -200,6 +200,7 @@ def parseSelectStatement(command):
 
 
 def parseDeleteStatement(command):
+    command=re.sub(' *;$','',command)
     strings = re.split('delete from ', command)
     strings = re.split(' where ', strings[1])
     fromString = strings[0]

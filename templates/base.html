@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+        <meta charset="utf-8" />
+        <title>Library</title>
+        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+        <meta name="viewport" content="width=device-width" />
+
+        <link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/assets/css/ct-paper.css" rel="stylesheet"/>
+        <link href="/static/assets/css/demo.css" rel="stylesheet" />
+
+        <link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+        <link rel="stylesheet" href="/static/assets/style.css">
+
+        <script src="/static/assets/js/jquery-1.10.2.js"></script>
+        <script src="/static/assets/js/ct-paper-radio.js"></script>
+
+        <style>
+            .btn-name{
+                background-color: #ffffff!important;
+            }
+            .btn-name:hover{
+                color: #EB5E28!important;
+            }
+        </style>
+    {% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-ct-danger">
+    <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation-example-2">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">NanoSQL</a>
+        </div>
+    </div><!-- /.container-->
+</nav>
+
+<div class="container">
+    {% block content %} {% endblock %}
+</div>
+</body>
+</html>
