@@ -26,8 +26,12 @@ def run():
             return
 
         if re.match('^execfile ',command):
+            timeStart = time.time()
             execFilePath=re.sub(' *;','',re.sub('^execfile +','',command))
+            print('Executing commands from '+colored.cyan(bold(execFilePath))+' ...')
             execFromFile(execFilePath)
+            timeElapsed = time.time() - timeStart
+            print(bold('Execution done in ' + str(round(timeElapsed, 5)) + ' seconds.'))
             command=''
             continue
 
@@ -61,7 +65,7 @@ def execFromFile(filePath):
                 if re.match('^execfile ', command):
                     execFilePath = re.sub(' *;', '', re.sub('^execfile +', '', command))
                     execFilePath = re.sub('/[^/]+$','/',filePath)+execFilePath
-                    print(execFilePath)
+                    print('Executing commands from ' + colored.cyan(bold(execFilePath)) + ' ...')
                     execFromFile(execFilePath)
                     command=''
                     line = f.readline()
@@ -73,7 +77,7 @@ def execFromFile(filePath):
                     command = ''
                     continue
                 if result['status'] == 'error':
-                    print(colored.red(result['payload']))
+                    print(colored.red(bold('ERROR')) + colored.red('->' + result['payload']))
                 command = ''
             line = f.readline()
 
@@ -130,7 +134,7 @@ def outputResult(result):
             print(colored.green(bold( str(len(table['body']))+' rows, '+str(len(maxLen))+' columns in set.' )))
 
     elif result['status'] == 'error':
-        print(colored.red(result['payload']))
+        print(colored.red(bold('ERROR')) + colored.red('->'+result['payload']))
     else:
         print(colored.red('An unknown error occurred when execute the command.'))
 

@@ -10,6 +10,12 @@ def execute(command):
             'payload': 'Unknown SQL statement'
         }
 
+    if 'error' in queryData['data']:
+        return {
+            'status': 'error',
+            'payload': queryData['data']['error']
+        }
+
     if queryData['operation']=='createTable':
         executeCreateTable(queryData['data'])
         return {
