@@ -164,6 +164,8 @@ def parseWheres(whereString):
                 value=float(value)
             else:
                 value=int(value)
+        else:
+            value=value[1:-1]
         wheres.append({
             'operand':operand,
             'field':removeEndsSpaces(operators[0]),
