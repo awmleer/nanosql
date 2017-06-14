@@ -70,8 +70,13 @@ def extend(tableName,primaryKey,fields):
         })
     value['size']=size
     return value
-
-
+def getFieldNumber(tableName, fieldName):
+    i=0
+    for field in tablesInfo[tableName]['fields']:
+        if field['name']==fieldName:
+            return i
+        i+=1
+    return -1
 
 def createTable(tableName,primaryKey,fields):# GRF
     """
