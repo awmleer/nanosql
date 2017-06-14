@@ -3,7 +3,7 @@ import bufferManager, catalogManager, recordManager, indexManager
 
 def execute(command):
     queryData=interpreter.interpret(command)
-    # print(queryData)  # for DEBUG
+    print(queryData)  # for DEBUG
     if queryData['operation']=='unknown':
         return {
             'status': 'error',
@@ -135,17 +135,26 @@ def executeInsert(data):
 def executeSelect(data):
     if not catalogManager.existTable(data['from']):
         return {'status': 'error', 'payload': 'Table '+data['from']+' does not exist'}
-    head=[]
     fieldList=catalogManager.getFieldsList(data['from'])
     fields=[]
     for f in fieldList:
         fields.append(f['name'])
-    for field in data['fields']:
-        if field in fields or '*' in data['fields']:
-            head.append(field)
-        else:
-            return {'status': 'error', 'payload': 'Field '+field+' does not exist'}
-    result=recordManager.select(data['from'],data['fields'],data['where'])
+    head=[]
+    if '*' in data['fields']:
+        head=fields
+    else:
+        for field in data['fields']:
+            if field in fields:
+                head.append(field)
+            else:
+                return {'status': 'error', 'payload': 'Field ' + field + ' does not exist'}
+    if data['orderBy'] is not None:
+        orderByFieldNo=catalogManager.getFieldNumber(data['orderBy'])
+        if orderByFieldNo == -1:
+            return {'status': 'error', 'payload': 'Field ' + data['fieldName'] + ' does not exist'}
+    else:
+        orderByFieldNo=None
+    result=recordManager.select(data['from'],data['fields'],data['where'],orderByFieldNo,data['limit'])
     if result['status']=='error':
         return result
     return {

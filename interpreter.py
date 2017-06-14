@@ -186,6 +186,21 @@ def parseSelectStatement(command):
     fieldString=strings[0]
     strings=re.split(' where ',strings[1])
     fromString=strings[0]
+
+    searchResult=re.search(' +order by +(?P<field>\w+)',strings[1])
+    if searchResult is None:
+        orderBy=None
+    else:
+        orderBy=searchResult.group('field')
+    strings[1]=re.sub(' +order by +(?P<field>\w+)','',strings[1])
+
+    searchResult = re.search(' +limit +(?P<number>\d+)', strings[1])
+    if searchResult is None:
+        limit=0
+    else:
+        limit=int(searchResult.group('number'))
+    strings[1]=re.sub(' +limit +(?P<number>\d+)','',strings[1])
+
     if len(strings)>1:
         whereString=strings[1]
         wheres=parseWheres(whereString)
@@ -199,6 +214,8 @@ def parseSelectStatement(command):
 
     return {
         'fields':fields,
+        'orderBy': orderBy,
+        'limit': limit,
         'from':removeEndsSpaces(fromString),
         'where':wheres
     }

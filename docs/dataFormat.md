@@ -52,6 +52,8 @@
 {
   fields: ['field1', 'field2', '*'],
   from: 'table1',
+  orderBy: None | 'fieldName', //None means no need to order
+  limit: 42 // a non-negative, 0 means no need to limit
   where:[
     {
       field: 'field1',
