@@ -145,14 +145,14 @@ def parseWheres(whereString):
         operand=''
         if re.search('<>',rawWhere):
             operand='<>'
+        elif re.search('>=', rawWhere):
+            operand = '>='
+        elif re.search('<=', rawWhere):
+            operand = '<='
         elif re.search('>',rawWhere):
             operand='>'
         elif re.search('<',rawWhere):
             operand='<'
-        elif re.search('>=',rawWhere):
-            operand='>='
-        elif re.search('<=',rawWhere):
-            operand='<='
         elif re.search('=',rawWhere):
             operand='='
         if operand=='':

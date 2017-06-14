@@ -127,7 +127,7 @@ def executeInsert(data):
 def executeSelect(data):
     head=[]
     for field in catalogManager.getFieldsList(data['from']):
-        if field['name'] in data['fields']:
+        if field['name'] in data['fields'] or '*' in data['fields']:
             head.append(field['name'])
     result=recordManager.select(data['from'],data['fields'],data['where'])
     if result['status']=='error':
