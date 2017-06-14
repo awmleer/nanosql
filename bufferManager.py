@@ -67,7 +67,6 @@ def write(filePath,blockPosition,data,cache=False):
             del bufferList[filePath][blockPosition]
         f = getFile(filePath)
         f.seek(blockPosition * BLOCK_SIZE, io.SEEK_SET)
-        print(f.tell())
         f.write(data)  # type of data is 'bytes'
 
 

@@ -16,71 +16,111 @@ def execute(command):
             'payload': queryData['data']['error']
         }
 
+
     if queryData['operation']=='createTable':
-        executeCreateTable(queryData['data'])
-        return {
-            'status': 'success',
-            'payload': 'Table '+queryData['data']['tableName']+' was successfully created.'
-        }
+        result=executeCreateTable(queryData['data'])
+        if result['status']=='success':
+            return {
+                'status': 'success',
+                'payload': 'Table '+queryData['data']['tableName']+' was successfully created.'
+            }
+        else:
+            return result
+
     if queryData['operation']=='insert':
-        executeInsert(queryData['data'])
-        return {
-            'status': 'success',
-            'payload': 'Successfully inserted a record into table '+queryData['data']['tableName']
-        }
+        result=executeInsert(queryData['data'])
+        if result['status'] == 'success':
+            return {
+                'status': 'success',
+                'payload': 'Successfully inserted a record into table '+queryData['data']['tableName']
+            }
+        else:
+            return result
+
     if queryData['operation']=='select':
-        return {
-            'status': 'success',
-            'payload': executeSelect(queryData['data'])
-        }
+        result=executeSelect(queryData['data'])
+        if result['status'] == 'success':
+            return {
+                'status': 'success',
+                'payload': result['payload']
+            }
+        else:
+            return result
+
     if queryData['operation']=='delete':
-        executeDelete(queryData['data'])
+        return executeDelete(queryData['data'])
+
     if queryData['operation']=='createIndex':
-        executeCreateIndex(queryData['data'])
-        return {
-            'status': 'success',
-            'payload': 'Index '+queryData['data']['indexName']+' was successfully created.'
-        }
+        result=executeCreateIndex(queryData['data'])
+        if result['status'] == 'success':
+            return {
+                'status': 'success',
+                'payload': 'Index '+queryData['data']['indexName']+' was successfully created.'
+            }
+        else:
+            return result
+
     if queryData['operation']=='dropIndex':
-        executeDropIndex(queryData['data'])
-        return {
-            'status': 'success',
-            'payload': 'Index ' + queryData['data']['indexName'] + ' was successfully removed.'
-        }
+        result=executeDropIndex(queryData['data'])
+        if result['status'] == 'success':
+            return {
+                'status': 'success',
+                'payload': 'Index ' + queryData['data']['indexName'] + ' was successfully removed.'
+            }
+        else:
+            return result
+
     if queryData['operation']=='dropTable':
-        executeDropTable(queryData['data'])
-        return {
-            'status': 'success',
-            'payload': 'Table ' + queryData['data']['tableName'] + ' was successfully removed.'
-        }
-    return queryData  # TODO just for DEBUG
+        result=executeDropTable(queryData['data'])
+        if result['status'] == 'success':
+            return {
+                'status': 'success',
+                'payload': 'Table ' + queryData['data']['tableName'] + ' was successfully removed.'
+            }
+        else:
+            return result
+
+    return {
+        'status':'error',
+        'payload':'Interpreter failed'
+    }
 
 
-
-#TODO check the execute return status
 
 def executeCreateTable(data):
     fields = data['fields']
-    catalogManager.createTable(data['tableName'], data['primaryKey'], fields)
+    result=catalogManager.createTable(data['tableName'], data['primaryKey'], fields)
+    if result['status']=='error':
+        return result
     columnCount=0
     for field in fields:
         if field['name']==data['primaryKey']:  # auto set primary key to unique
             field['unique']=True
     for field in fields:
         if field['unique']:
-            catalogManager.createIndex('auto$'+data['tableName']+'$'+field['name'],data['tableName'],columnCount)
+            result=catalogManager.createIndex('auto$'+data['tableName']+'$'+field['name'],data['tableName'],columnCount)
+            if result['status'] == 'error':
+                return result
         columnCount+=1
-    recordManager.createTable(data['tableName'])
+    result=recordManager.createTable(data['tableName'])
+    if result['status']=='error':
+        return result
     columnCount=0
     for field in fields:
         if field['unique']:
-            indexManager.createIndex('auto$'+data['tableName']+'$'+field['name'],data['tableName'],columnCount)
+            result=indexManager.createIndex('auto$'+data['tableName']+'$'+field['name'],data['tableName'],columnCount)
+            if result['status'] == 'error':
+                return result
         columnCount+=1
+    return {
+        'status':'success',
+        'payload':None
+    }
 
 
 
 def executeInsert(data):
-    recordManager.insert(data['tableName'],data['values'])
+    return recordManager.insert(data['tableName'],data['values'])
 
 
 
@@ -88,9 +128,15 @@ def executeSelect(data):
     head=[]
     for field in catalogManager.getFieldsList(data['from']):
         head.append(field['name'])
+    result=recordManager.select(data['from'],data['fields'],data['where'])
+    if result['status']=='error':
+        return result
     return {
-        'head':head,
-        'body':recordManager.select(data['from'],data['fields'],data['where'])
+        'status':'success',
+        'payload':{
+            'head': head,
+            'body': result['payload']
+        }
     }
 
 
@@ -102,29 +148,39 @@ def executeCreateIndex(data):
         if field['name']==data['fieldName']:
             break
         count+=1
-    catalogManager.createIndex(data['indexName'],data['tableName'],count)
-    indexManager.createIndex(data['indexName'],data['tableName'],count)
+    result=catalogManager.createIndex(data['indexName'],data['tableName'],count)
+    if result['status']=='error':
+        return result
+    return indexManager.createIndex(data['indexName'],data['tableName'],count)
 
 
 
 def executeDropIndex(data):
-    indexManager.dropIndex(data['indexName'])
-    catalogManager.dropIndex(data['indexName'])
+    result=indexManager.dropIndex(data['indexName'])
+    if result['status']=='error':
+        return result
+    return catalogManager.dropIndex(data['indexName'])
 
 
 
 def executeDropTable(data):
     indices=catalogManager.getIndexList(data['tableName'])
     for index in indices:
-        indexManager.dropIndex(index[0])
-        catalogManager.dropIndex(index[0])
-    recordManager.dropTable(data['tableName'])
-    catalogManager.dropTable(data['tableName'])
+        result=indexManager.dropIndex(index[0])
+        if result['status'] == 'error':
+            return result
+        result=catalogManager.dropIndex(index[0])
+        if result['status'] == 'error':
+            return result
+    result=recordManager.dropTable(data['tableName'])
+    if result['status']=='error':
+        return result
+    return catalogManager.dropTable(data['tableName'])
 
 
 
 def executeDelete(data):
-    recordManager.delete(data['from'],data['where'])
+    return recordManager.delete(data['from'],data['where'])
 
 
 

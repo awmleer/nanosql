@@ -46,7 +46,7 @@ def createIndex(indexName, tableName, columnName):# GRF
     """
     # establish B+Tree in Memory
     forest[indexName]=BPlusTree.bulkload(recordManager.selectWithNo(tableName,columnName),ORDER)
-    return return {  'status':'success','payload': None}
+    return {  'status':'success','payload': None}
 
 
 def select(indexName,fields,value):# GRF

@@ -234,9 +234,9 @@ def select(tableName,fields,where):# GRF
     # get each rows
     # satisfy conditions?
     # if we can select using index
-    print('tableName: ',tableName)
-    print('fields: ',fields)
-    print('where: ',where)
+    # print('tableName: ',tableName)
+    # print('fields: ',fields)
+    # print('where: ',where)
     fieldsList=catalogManager.getFieldsList(tableName)
     if(where==[]):
         # select all!!!!!
@@ -254,7 +254,7 @@ def select(tableName,fields,where):# GRF
                 value=float(value)
             return indexManager.select(indexName,fields,value)
     # else we use default select methods
-    print("myWhere: ",myWhere)
+    # print("myWhere: ",myWhere)
     fileName=getTableFileName(tableName)
     blockCount=bufferManager.blockCount(fileName)
     size=catalogManager.getTableSize(tableName)
@@ -273,13 +273,13 @@ def select(tableName,fields,where):# GRF
         rows=len(blockContent)//size
         for i in range(rows):
             oneRecord=unpack(blockContent[i*size:(i+1)*size],fieldsList)
-            print(oneRecord)
+            # print(oneRecord)
             if(oneRecord==[]):
                 continue
             flag=True
             for condition in myWhere:
-                print(condition)
-                print(oneRecord[condition['field']])
+                # print(condition)
+                # print(oneRecord[condition['field']])
                 if not (eval(''.join([repr(oneRecord[condition['field']]),condition['operand'],repr(condition['value'])]))):
                     flag=False
             if flag:
@@ -293,7 +293,10 @@ def select(tableName,fields,where):# GRF
                         newRecord.append(oneRecord[No])
                 #append
                 recordList.append(newRecord)
-    return recordList
+    return {
+        'status':'success',
+        'payload':recordList
+    }
 
 
 def selectWithNo(tableName,columnName):
@@ -328,7 +331,7 @@ def testInsert():
 
 def testSelect():
     print(select('student',['*'],[
-    {'field':'no','operand':'=','value':'00010'}
+        {'field':'no','operand':'=','value':'00010'}
     ]))
 
 
