@@ -131,14 +131,17 @@ def executeInsert(data):
 
 def executeSelect(data):
     if not catalogManager.existTable(data['from']):
-        return {'status': 'error', 'payload': 'Table does not exist'}
+        return {'status': 'error', 'payload': 'Table '+data['from']+' does not exist'}
     head=[]
-    fields=catalogManager.getFieldsList(data['from'])
+    fieldList=catalogManager.getFieldsList(data['from'])
+    fields=[]
+    for f in fieldList:
+        fields.append(f['name'])
     for field in data['fields']:
-        if field['name'] in fields or '*' in data['fields']:
-            head.append(field['name'])
+        if field in fields or '*' in data['fields']:
+            head.append(field)
         else:
-            return {'status': 'error', 'payload': 'Field '+field['name']+' does not exist'}
+            return {'status': 'error', 'payload': 'Field '+field+' does not exist'}
     result=recordManager.select(data['from'],data['fields'],data['where'])
     if result['status']=='error':
         return result
@@ -177,7 +180,7 @@ def executeDropIndex(data):
 
 def executeDropTable(data):
     if not catalogManager.existTable(data['tableName']):
-        return {'status': 'error', 'payload': 'Table does not exist'}
+        return {'status': 'error', 'payload': 'Table '+data['tableName']+' does not exist'}
     indices=catalogManager.getIndexList(data['tableName'])
     for index in indices:
         result=indexManager.dropIndex(index[0])
@@ -195,7 +198,7 @@ def executeDropTable(data):
 
 def executeDelete(data):
     if not catalogManager.existTable(data['from']):
-        return {'status': 'error', 'payload': 'Table does not exist'}
+        return {'status': 'error', 'payload': 'Table '+data['tableName']+' does not exist'}
     return recordManager.delete(data['from'],data['where'])
 
 
