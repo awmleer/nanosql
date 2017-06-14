@@ -149,7 +149,7 @@ def executeSelect(data):
             else:
                 return {'status': 'error', 'payload': 'Field ' + field + ' does not exist'}
     if data['orderBy'] is not None:
-        orderByFieldNo=catalogManager.getFieldNumber(data['orderBy'])
+        orderByFieldNo=catalogManager.getFieldNumber(data['from'],data['orderBy'])
         if orderByFieldNo == -1:
             return {'status': 'error', 'payload': 'Field ' + data['fieldName'] + ' does not exist'}
     else:

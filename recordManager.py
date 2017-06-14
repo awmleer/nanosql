@@ -227,7 +227,7 @@ def convertInWhere(tableName,where):
     return where
 
 
-def select(tableName,fields,where):# GRF
+def select(tableName,fields,where,orderedBy=None, limit=None):# GRF
     """
     # select and project
     """
@@ -285,19 +285,25 @@ def select(tableName,fields,where):# GRF
                 if not (eval(''.join([repr(oneRecord[condition['field']]),condition['operand'],repr(condition['value'])]))):
                     flag=False
             if flag:
-                #project
-                newRecord=[]
-                if(myFields==['*']):
-                    newRecord=oneRecord
-                else:
-                    for No in myFields:
-                        #copy !!!
-                        newRecord.append(oneRecord[No])
                 #append
-                recordList.append(newRecord)
+                recordList.append(oneRecord)
+    if(orderedBy is not None):
+        recordList = sorted(recordList, key=lambda record: record[orderedBy])
+    newRecordList=[]
+    if (myFields!=['*']):
+        for item in recordList:
+            newRecord = []
+            for No in myFields:
+                # copy !!!
+                newRecord.append(item[No])
+            newRecordList.append(newRecord)
+    else:
+        newRecordList=recordList
+    if limit is not None and len(newRecordList)>limit:
+        newRecordList=newRecordList[:limit]
     return {
         'status':'success',
-        'payload':recordList
+        'payload':newRecordList
     }
 
 
