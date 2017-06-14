@@ -154,7 +154,11 @@ def findTable(tableName):
 def existTable(tableName):
     return tableName in tablesInfo
 
-
+def getTableNames():
+    tableNames=[]
+    for key in tablesInfo:
+        tableNames.append(key)
+    return tableNames
 def existIndex(indexName):
     return indexName in indicesInfo
 
