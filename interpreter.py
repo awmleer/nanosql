@@ -139,9 +139,7 @@ def parseWheres(whereString):
     wheres=[]
     for rawWhere in rawWheres:
         operand=''
-        if re.search('=',rawWhere):
-            operand='='
-        elif re.search('<>',rawWhere):
+        if re.search('<>',rawWhere):
             operand='<>'
         elif re.search('>',rawWhere):
             operand='>'
@@ -151,11 +149,13 @@ def parseWheres(whereString):
             operand='>='
         elif re.search('<=',rawWhere):
             operand='<='
+        elif re.search('=',rawWhere):
+            operand='='
         if operand=='':
             return "error" # TODO raise error
         operators=re.split(operand,rawWhere)
         wheres.append({
-            'operand':'=',
+            'operand':operand,
             'field':removeEndsSpaces(operators[0]),
             'value':removeEndsSpaces(operators[1])
         })
