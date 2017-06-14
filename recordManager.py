@@ -136,7 +136,7 @@ def insert(tableName, recordList):# GRF
             value=float(recordList[i])
         else:
             value=str(recordList[i])
-        if (select(tableName,['*'],[{'field':field['name'],'operand':'=','value':value}])) !=[]:
+        if (select(tableName,['*'],[{'field':field['name'],'operand':'=','value':value}])['payload']) !=[]:
             return {  'status':'error','payload': 'duplicated unique key'}
         i+=1
 
@@ -234,9 +234,9 @@ def select(tableName,fields,where):# GRF
     # get each rows
     # satisfy conditions?
     # if we can select using index
-    # print('tableName: ',tableName)
-    # print('fields: ',fields)
-    # print('where: ',where)
+    print('tableName: ',tableName)
+    print('fields: ',fields)
+    print('where: ',where)
     fieldsList=catalogManager.getFieldsList(tableName)
     if(where==[]):
         # select all!!!!!

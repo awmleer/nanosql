@@ -89,6 +89,9 @@ def execute(command):
 
 def executeCreateTable(data):
     fields = data['fields']
+    result=recordManager.createTable(data['tableName'])
+    if result['status']=='error':
+        return result
     result=catalogManager.createTable(data['tableName'], data['primaryKey'], fields)
     if result['status']=='error':
         return result
@@ -102,9 +105,6 @@ def executeCreateTable(data):
             if result['status'] == 'error':
                 return result
         columnCount+=1
-    result=recordManager.createTable(data['tableName'])
-    if result['status']=='error':
-        return result
     columnCount=0
     for field in fields:
         if field['unique']:
