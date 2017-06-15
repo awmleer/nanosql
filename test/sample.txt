@@ -9,7 +9,7 @@ select * from student2 where id=1080100245; --考察int类型上的等值条件�
 select * from student2 where score=98.5; --考察float类型上的等值条件查询
 
 —-3
-select * from student2 where name='name245'; --考察char类型上的等值条件查询，此处需观察执行时间t1
+select * from student2 where name='name245'; --考察char类型上的等值条件查询，此处需观察执行时间t1（此处t1不准确）
 
 —-4
 select * from student2 where id<>1080109998; --考察int类型上的不等条件查询
@@ -33,7 +33,7 @@ insert into student2 values(1080100245,'name245',100); --报primary key约束冲
 drop index auto$student2$name;
 
 然后测试不用index的查询速度
-select * from student2 where name='name245';
+select * from student2 where name='name245'; --t1
 
 —-10
 create index stuidx on student2 ( name ); --在name这个unique属性上创建index
