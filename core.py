@@ -48,7 +48,13 @@ def execute(command):
             return result
 
     if queryData['operation']=='delete':
-        return executeDelete(queryData['data'])
+        result=executeDelete(queryData['data'])
+        if result['status']=='success':
+            return {
+                'status':'success',
+                'payload': 'Successfully deleted '+str(result['payload'])+' records.'
+            }
+        return
 
     if queryData['operation']=='createIndex':
         result=executeCreateIndex(queryData['data'])
