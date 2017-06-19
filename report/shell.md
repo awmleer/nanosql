@@ -55,3 +55,11 @@ shell模块调用core模块的`execute()`函数，会得到一个**字典**，�
 只需要在开始调用`core.execute()`之前记录开始时间：`timeStart=time.time()`，在查询执行完毕后记录结束时间，二者作差，即可得出查询语句执行的总时间。
 
 需要说明的是，由于`outputResult()`是在`timeElapsed=time.time()-timeStart`语句之后执行的，因此最终计算出的执行时间是不包括输出数据用时在内的。
+
+### 辅助函数
+
+为了方便把结果输出到终端，我们设计了一些辅助函数：
+
+- `batchPrint`：将某个字符打印多次
+- `printDivider`：打印出分割线
+- `bold`：把字符串的最前面和最后面加上加粗标记再返回
