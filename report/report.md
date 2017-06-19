@@ -6,6 +6,8 @@
 
 ## 项目概况
 
+![screenshot](./photos/screenshot.png)
+
 `NanoSQL`是我们使用Python语言开发的一个简易的数据库系统，支持基本的SQL操作，shell交互，图形界面访问。
 
 项目地址：[GitHub](https://github.com/awmleer/NanoSQL)
@@ -18,6 +20,7 @@
 | interpreter    | 郝广博  |
 | core           | 郝广博  |
 | indexManager   | 李海鹏  |
+| BPlusTree      | 李海鹏  |
 | catalogManager | 李海鹏  |
 | recordManager  | 李海鹏  |
 | bufferManager  | 郝广博  |
@@ -45,6 +48,10 @@ TODO
 ```
 
 
+
+
+
+## 有待提高的地方
 
 
 

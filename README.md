@@ -29,3 +29,4 @@ create index stunameidx on student ( sname );
 insert into student values ('12345678','wy',22,'M');
 ```
 
+See more test cases at: `test/sample.txt`
