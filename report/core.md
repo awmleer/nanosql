@@ -55,3 +55,9 @@ core模块的入口点是`execute`函数，它以`command`（SQL语句字符串�
 
 1. 调用catalogManager的getTableNames函数，获取到所有表的名字。
 2. 根据获取到的数据拼接成可以让shell或者web模块直接渲染显示的二维表格字典。
+
+### quit()
+
+quit函数的主要作用是在程序退出时，保存缓存、关闭文件。
+
+因此，程序在退出前，需要先调用quit()函数。
