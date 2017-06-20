@@ -4,7 +4,7 @@ fileList={}
 bufferList={}
 
 BLOCK_SIZE=4096
-MAX_BUFFER_AMOUNT=64
+MAX_BUFFER_AMOUNT=256
 
 
 def openFile(filePath):
