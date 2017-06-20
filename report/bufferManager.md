@@ -113,7 +113,7 @@ if (blockPosition not in bufferList[filePath]) and (len(bufferList[filePath])>=M
 
 参数：`filePath`  `blockPosition`  `data`  `cache=False`
 
-把`data`的内容写入到指定文件的指定位置。
+把`data`的内容写入到指定文件的指定位置或者对应的buffer中（取决`cache`参数）。
 
 如果启用了缓存，则还需要同时把buffer的`consistent`设置为`False`。
 
@@ -145,7 +145,21 @@ if (blockPosition not in bufferList[filePath]) and (len(bufferList[filePath])>=M
 
 我们在设计这个系统时发现，由于buffer开的比较大，实际运行中很少会需要做buffer的释放操作，因此由**加速大概率事件**原理，采用RR替换策略，可以完全去除掉buffer访问频度的统计开销，从而实现更快的IO操作。
 
+### save
 
+参数：`filePath`
 
+把该文件对应的所有buffer中，`consistent`为`False`的那些，写回硬盘的文件中。
 
+```python
+for position in bufferList[filePath]:
+    blockBuffer=bufferList[filePath][position]
+    if not blockBuffer['consistent']:
+        f.seek(int(position)*BLOCK_SIZE,io.SEEK_SET)
+        f.write(blockBuffer['data'])
+```
+
+### saveAll
+
+对`bufferList`中的所有文件，依次调用`save`函数。
 
