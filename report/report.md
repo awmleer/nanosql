@@ -41,7 +41,7 @@
 
 
 ## Shell
-
+**Made By 郝广博**
 ### 总述
 
 shell模块是用来实现和用户的**命令行交互**界面的。
@@ -108,7 +108,7 @@ shell模块调用core模块的`execute()`函数，会得到一个**字典**，�
 
 
 ## Interpreter
-
+**Made By 郝广博**
 ### 总述
 
 interpreter模块的主要功能是把输入的SQL语句**字符串**解析成**字典**，再返回给core模块。
@@ -216,7 +216,7 @@ interpreter模块的核心函数是`interpret`，这也是这个模块的**入�
 
 
 ## Core
-
+**Made By 郝广博**
 ### 总述
 
 core模块是整个NanoSQL系统的**枢纽**，它连接着除了bufferManager以外的所有模块。
@@ -280,6 +280,7 @@ quit函数的主要作用是在程序退出时，保存缓存、关闭文件。
 因此，程序在退出前，需要先调用quit()函数。
 
 ## Index Manager
+**Made By 李海鹏**
 ### 总述
 Index Manager负责B+树索引的实现，实现B+树的**创建和删除**(由索引的定义与删除引起)、**等值查找、插入键值、删除键值**等操作，并对外提供相应的接口。
 B+树中节点大小应与缓冲区的块大小相同，B+树的叉数由节点大小与索引键大小计算得到。
@@ -351,6 +352,7 @@ B+Tree索引结构请参见B+Tree模块的报告
 
 
 ## B Plus Tree
+**Made By 李海鹏**
 ### 总述
 B Plus Tree实现了封装的B+Tree数据结构，是一个n叉排序树，每个节点有多个孩子，一棵B+树包含根节点、内部节点和叶子节点。根节点可能是一个叶子节点，也可能是一个包含两个或两个以上孩子节点的节点。
 本模块为index manager提供了b plus tree数据结构，提供方便的**查询、插入、删除**操作
@@ -439,6 +441,7 @@ m阶B树的插入操作在叶子结点上进行，假设要插入关键值a，�
 
 
 ## Catalog Manager
+**Made By 李海鹏**
 ### 总述
 Catalog Manager 负责管理数据库的所有模式信息，包括：
 1. 数据库中所有表的定义信息，包括名称、字段（列）主键在该上索引。
@@ -576,6 +579,7 @@ Catalog Manager 负责管理数据库的所有模式信息，包括：
 
 
 ## Record Manager
+**Made By 李海鹏**
 ### 总述
 Record Manager负责管理记录表中数据的数据文件。主要功能为实现数据文件的**创建与删除(由表的定义与删除引起)、记录的插入、删除与查找操作**，并对外提供相应的接口。
 本模块可以实现的查找操作类型有
@@ -672,7 +676,7 @@ Record Manager负责管理记录表中数据的数据文件。主要功能为实
   - 删除方法为对每一个符合删除条件的内容，将其数据文件中的第5个byte`validation`改为False(二进制为`b'\x00'`)。并且对计数器+1
 
 ## Buffer Manager
-
+**Made By 郝广博**
 ### 总述
 
 bufferManager模块不仅仅是实现了缓存功能，更重要是把对文件的IO操作封装在了一个模块内，使得其他模块不需要自己去处理IO操作，而只需调用bufferManager模块的`read`、`write`、`delete`函数。bufferManager会自动管理缓存，对于其他模块来说，不需要过多的处理缓存问题。
@@ -838,7 +842,7 @@ for position in bufferList[filePath]:
 
 
 ## Web
-
+**Made By 郝广博**
 ![web1](./photos/web1.png)
 
 ![web2](./photos/web2.png)
